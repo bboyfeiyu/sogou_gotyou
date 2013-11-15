@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">逮到你-输入法工具箱</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="location">我的位置</string>
+    <string name="navigation">导航至好友位置</string>
+    <string name="location_detail">获取位置信息</string>
+    <string name="nav_detail">获取导航信息</string>
+
+</resources>
