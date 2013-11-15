@@ -34,6 +34,7 @@ import com.amap.api.maps.model.MyLocationStyle;
 import com.umeng.gotyou.R;
 import com.umeng.gotyou.beans.LocationEntity;
 import com.umeng.gotyou.beans.NavgationConfig;
+import com.umeng.gotyou.dialog.NavgationDialog;
 import com.umeng.gotyou.sogouapi.SogouEntryActivity;
 import com.umeng.gotyou.utils.ClipboardUtil;
 import com.umeng.gotyou.utils.GpsUtil;
@@ -147,10 +148,6 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
             mGaoDeMap = mMapView.getMap();
         }
 
-        CameraUpdateFactory.zoomTo(18.0f);
-        // 设置缩放级别
-        mGaoDeMap.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
-
         // 自定义系统定位蓝点
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         // 自定义定位蓝点图标
@@ -172,7 +169,7 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
         mGaoDeMap.setMyLocationEnabled(true);
 
         // 设置缩放级别
-        mGaoDeMap.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
+        mGaoDeMap.animateCamera(CameraUpdateFactory.zoomTo(20.0f), null);
 
         mUiSettings = mGaoDeMap.getUiSettings();
         mUiSettings.setMyLocationButtonEnabled(true);
@@ -183,6 +180,8 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if (marker.equals(mFriendMarker)) {
+                    NavgationDialog dialog = new NavgationDialog(MainActivity.this);
+                    dialog.show();
                     Toast.makeText(MainActivity.this, "hello", Toast.LENGTH_SHORT).show();
                 }
                 return false;
@@ -222,7 +221,7 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
      * 
      */
     private Marker mFriendMarker = null;
-    LatLng mLatLng = new LatLng(39.54, 116.23);
+    LatLng mFriendLatLng = new LatLng(39.54, 116.23);
 
     /**
      * @Title: addMarkerOnMap
@@ -232,15 +231,16 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
     private void addMarkerOnMap() {
 
         mFriendMarker = mGaoDeMap.addMarker(new MarkerOptions()
-                .position(mLatLng)
+                .position(mFriendLatLng)
+                .anchor(0.5f, 0.5f)
                 .title("我的朋友")
-                .snippet("所在位置为: " + mLatLng.toString())
+                .snippet("所在位置为: " + mFriendLatLng.toString())
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.friend))
                 .perspective(true).draggable(true));// 设置远小近大效果,2.1.0版本新增
         // 设置默认显示一个infowinfow
         mFriendMarker.showInfoWindow();
         // 移动到目标点
-        mGaoDeMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLng));
+        mGaoDeMap.animateCamera(CameraUpdateFactory.newLatLng(mFriendLatLng));
     }
 
     /**
@@ -311,7 +311,12 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
             // 设置小蓝点旋转角度
             mGaoDeMap.setMyLocationRotateAngle(bearing);
             mLocation = aLocation;
-            Log.d("", "" + mLocation.getLongitude() + ", latitude : " + mLocation.getLatitude());
+            LatLng myLatLng = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+            mGaoDeMap.animateCamera(CameraUpdateFactory.newLatLng(myLatLng));
+            Log.d("",
+                    "#### lontitude : " + mLocation.getLongitude() + ", latitude : "
+                            + mLocation.getLatitude());
+            Log.d("", "#### zoom level : " + mGaoDeMap.getCameraPosition().zoom);
         }
     }
 
@@ -322,20 +327,18 @@ public class MainActivity extends Activity implements OnClickListener, LocationS
     public void activate(OnLocationChangedListener listener) {
         mListener = listener;
         if (mAMapLocationManager == null) {
-            // 设置缩放级别
-            mGaoDeMap.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
             mAMapLocationManager = LocationManagerProxy.getInstance(this);
+            if (!GpsUtil.isGpsOPen(MainActivity.this)) {
+                buildDialog();
+            } else {
+                mAMapLocationManager.setGpsEnable(true);
+            }
             /*
              * mAMapLocManager.setGpsEnable(false);
              * 1.0.2版本新增方法，设置true表示混合定位中包含gps定位，false表示纯网络定位，默认是true Location
              * API定位采用GPS和网络混合定位方式
              * ，第一个参数是定位provider，第二个参数时间最短是5000毫秒，第三个参数距离间隔单位是米，第四个参数是定位监听者
              */
-            if (!GpsUtil.isGpsOPen(MainActivity.this)) {
-                buildDialog();
-            } else {
-                mAMapLocationManager.setGpsEnable(true);
-            }
             mAMapLocationManager.requestLocationUpdates(
                     LocationProviderProxy.AMapNetwork, 5000, 10, this);
 

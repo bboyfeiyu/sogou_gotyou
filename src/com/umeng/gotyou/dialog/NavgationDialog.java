@@ -3,6 +3,8 @@ package com.umeng.gotyou.dialog;
 import android.app.Dialog;
 import android.content.Context;
 
+import com.umeng.gotyou.R;
+
 /**   
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved 
  *
@@ -18,6 +20,7 @@ public class NavgationDialog extends Dialog {
 
     public NavgationDialog(Context context) {
         super(context);
+        getWindow().setWindowAnimations(R.anim.dialog_anim);
     }
 
     public NavgationDialog(Context context, int theme) {
