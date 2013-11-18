@@ -1,4 +1,4 @@
-package com.umeng.gotyou.utils;
+package com.umeng.findyou.utils;
 /**   
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved 
  *
@@ -13,5 +13,6 @@ package com.umeng.gotyou.utils;
 public final class Constants {
 
     public static final String SERVER_URL = "";
+    public static final String BAIDU_MAP_KEY = "BA32c06b561780df45eb27e550fad434";
 
 }

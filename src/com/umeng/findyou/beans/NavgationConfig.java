@@ -1,7 +1,7 @@
 
-package com.umeng.gotyou.beans;
+package com.umeng.findyou.beans;
 
-import com.amap.api.maps.model.LatLng;
+import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -15,9 +15,9 @@ import com.amap.api.maps.model.LatLng;
 public class NavgationConfig {
 
     private Vehicle mVehicle = Vehicle.BUS;
-    private LatLng mStartLatLng = null;
+    private GeoPoint mStartPoint = null;
     private String mStartStr = "";
-    private LatLng mDestLatLng = null;
+    private GeoPoint mDestPoint = null;
     private String mDestStr = "";
 
     /**
@@ -37,7 +37,7 @@ public class NavgationConfig {
      * @param start
      * @param dest
      */
-    public NavgationConfig(LatLng start, LatLng dest) {
+    public NavgationConfig(GeoPoint start, GeoPoint dest) {
         this(start, dest, Vehicle.BUS);
     }
 
@@ -48,9 +48,9 @@ public class NavgationConfig {
      * @param dest
      * @param vehicle
      */
-    public NavgationConfig(LatLng start, LatLng dest, Vehicle vehicle) {
-        mStartLatLng = start;
-        mDestLatLng = dest;
+    public NavgationConfig(GeoPoint start, GeoPoint dest, Vehicle vehicle) {
+        mStartPoint = start;
+        mDestPoint = dest;
         mVehicle = vehicle;
     }
 
@@ -64,8 +64,8 @@ public class NavgationConfig {
      */
     @Override
     public String toString() {
-        return "NavgationConfig [mVehicle=" + mVehicle + ", mStartLatLng=" + mStartLatLng
-                + ", mStartStr=" + mStartStr + ", mDestLatLng=" + mDestLatLng + ", mDestStr="
+        return "NavgationConfig [mVehicle=" + mVehicle + ", mStartLatLng=" + mStartPoint
+                + ", mStartStr=" + mStartStr + ", mDestLatLng=" + mDestPoint + ", mDestStr="
                 + mDestStr + "]";
     }
     

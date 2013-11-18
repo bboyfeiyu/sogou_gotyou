@@ -1,12 +1,12 @@
 
-package com.umeng.gotyou.sogouapi;
+package com.umeng.findyou.sogouapi;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.sogou.inputmethod.sdk.SogouAPI;
-import com.umeng.gotyou.activities.MainActivity;
+import com.umeng.findyou.activities.MainActivity;
 
 public class SogouEntryActivity extends Activity {
 

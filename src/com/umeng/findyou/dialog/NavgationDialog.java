@@ -1,9 +1,9 @@
-package com.umeng.gotyou.dialog;
+package com.umeng.findyou.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
 
-import com.umeng.gotyou.R;
+import com.umeng.findyou.R;
 
 /**   
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved 

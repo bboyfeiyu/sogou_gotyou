@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">逮到你-输入法工具箱</string>
+    <string name="app_name">FindYou-输入法工具箱</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="location">我的位置</string>

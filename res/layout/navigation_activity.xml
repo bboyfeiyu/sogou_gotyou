@@ -6,11 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.amap.api.maps.MapView
-        android:id="@+id/map"
+    <com.umeng.findyou.activities.MyLocationMapViewOverlay
+        android:id="@+id/bmapsView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:clickable="true" />
 
     <LinearLayout
         android:layout_width="match_parent"

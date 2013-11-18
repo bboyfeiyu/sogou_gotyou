@@ -1,5 +1,5 @@
 
-package com.umeng.gotyou.beans;
+package com.umeng.findyou.beans;
 
 import java.util.HashMap;
 import java.util.Map;

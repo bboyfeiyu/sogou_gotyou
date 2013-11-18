@@ -1,5 +1,5 @@
 
-package com.umeng.gotyou.utils;
+package com.umeng.findyou.utils;
 
 import android.content.Context;
 import android.location.LocationManager;
