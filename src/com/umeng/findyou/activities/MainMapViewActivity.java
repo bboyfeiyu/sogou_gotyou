@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -26,11 +27,21 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
 import com.baidu.mapapi.map.PopupClickListener;
 import com.baidu.mapapi.map.PopupOverlay;
+import com.baidu.mapapi.search.MKAddrInfo;
+import com.baidu.mapapi.search.MKBusLineResult;
+import com.baidu.mapapi.search.MKDrivingRouteResult;
+import com.baidu.mapapi.search.MKPoiResult;
+import com.baidu.mapapi.search.MKSearchListener;
+import com.baidu.mapapi.search.MKShareUrlResult;
+import com.baidu.mapapi.search.MKSuggestionResult;
+import com.baidu.mapapi.search.MKTransitRouteResult;
+import com.baidu.mapapi.search.MKWalkingRouteResult;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.baidu.platform.comapi.map.Projection;
 import com.umeng.findyou.R;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
 import com.umeng.findyou.utils.Constants;
+import com.umeng.findyou.utils.LocationUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
 /**
@@ -159,9 +170,14 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
             // 是手动触发请求或首次定位时，移动到定位点
             // 移动地图到定位点
             Log.d("LocationOverlay", "receive location, animate to it");
-            // mMapController.animateTo(new GeoPoint((int) (locData.latitude *
-            // 1e6),
-            // (int) (locData.longitude * 1e6)));
+
+            // 计算位置
+            int latitude = (int) (locData.latitude * 1E6);
+            int lontitude = (int) (locData.longitude * 1E6);
+            mLocPoint.setLatitudeE6(latitude);
+            mLocPoint.setLongitudeE6(lontitude);
+            // 解析地址
+            LocationUtil.locationToAddress(mLocPoint, mBMapMan, mSearchListener);
         }
 
         public void onReceivePoi(BDLocation poiLocation) {
@@ -170,6 +186,57 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
             }
         }
     }
+
+    /**
+     * 
+     */
+    private MKSearchListener mSearchListener = new MKSearchListener() {
+
+        @Override
+        public void onGetAddrResult(MKAddrInfo addr, int code) {
+            Toast.makeText(getApplicationContext(), addr.strAddr, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onGetWalkingRouteResult(MKWalkingRouteResult arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onGetTransitRouteResult(MKTransitRouteResult arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onGetSuggestionResult(MKSuggestionResult arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onGetShareUrlResult(MKShareUrlResult arg0, int arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onGetPoiResult(MKPoiResult arg0, int arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onGetPoiDetailSearchResult(int arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onGetDrivingRouteResult(MKDrivingRouteResult arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onGetBusDetailResult(MKBusLineResult arg0, int arg1) {
+
+        }
+    };
 
     PopupWindow popupWindow = null;
     private View contentView = null;
@@ -186,12 +253,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         popupWindow = new PopupWindow(contentView,
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
-
-        // 计算位置
-        int latitude = (int) (locData.latitude * 1E6);
-        int lontitude = (int) (locData.longitude * 1E6);
-        mLocPoint.setLatitudeE6(latitude);
-        mLocPoint.setLongitudeE6(lontitude);
 
         Projection projection = mMapView.getProjection();
         Point popupPoint = new Point();
@@ -224,15 +285,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         @Override
         protected boolean dispatchTap() {
             showPopupWindow();
-            //
-            // // 处理点击事件,弹出泡泡
-            // popupText.setBackgroundResource(R.drawable.popup);
-            // popupText.setText("我的位置");
-            // Bitmap clickView = BMapUtil.getBitmapFromView(popupText);
-            // pop.showPopup(clickView,
-            // new GeoPoint((int) (locData.latitude * 1e6), (int)
-            // (locData.longitude * 1e6)),
-            // 8);
             return true;
         }
 
