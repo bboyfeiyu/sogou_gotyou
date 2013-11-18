@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.sogou.inputmethod.sdk.SogouAPI;
 import com.umeng.findyou.activities.MainActivity;
+import com.umeng.findyou.activities.MainMapViewActivity;
 
 public class SogouEntryActivity extends Activity {
 
@@ -37,7 +38,7 @@ public class SogouEntryActivity extends Activity {
      */
     private void gotoMainActivity() {
         Intent intent = new Intent();
-        intent.setClass(this, MainActivity.class);
+        intent.setClass(this, MainMapViewActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivityForResult(intent, REQUEST_CODE);
     }

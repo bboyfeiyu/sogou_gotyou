@@ -2,21 +2,18 @@
 package com.umeng.findyou.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -30,15 +27,16 @@ import com.baidu.mapapi.map.MyLocationOverlay;
 import com.baidu.mapapi.map.PopupClickListener;
 import com.baidu.mapapi.map.PopupOverlay;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
+import com.baidu.platform.comapi.map.Projection;
 import com.umeng.findyou.R;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
-import com.umeng.findyou.utils.BMapUtil;
 import com.umeng.findyou.utils.Constants;
+import com.umeng.findyou.views.MyLocationMapView;
 
 /**
  * 此demo用来展示如何结合定位SDK实现定位，并使用MyLocationOverlay绘制定位位置 同时展示如何使用自定义图标绘制并点击时弹出泡泡
  */
-public class MainMapViewActivity extends Activity {
+public class MainMapViewActivity extends Activity implements OnClickListener {
 
     // 定位相关
     private LocationClient mLocClient;
@@ -57,19 +55,20 @@ public class MainMapViewActivity extends Activity {
     // 如果不处理touch事件，则无需继承，直接使用MapView即可
     MyLocationMapView mMapView = null; // 地图View
     private MapController mMapController = null;
+    private GeoPoint mLocPoint = new GeoPoint(0, 0);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_mapview_activity);
-        CharSequence titleLable = "定位功能";
-        setTitle(titleLable);
 
         mBMapMan = new BMapManager(getApplication());
         mBMapMan.init(Constants.BAIDU_MAP_KEY, null);
 
+        setContentView(R.layout.main_mapview_activity);
+
         // 地图初始化
-        mMapView = (MyLocationMapView) findViewById(R.id.bmapView);
+        mMapView = (MyLocationMapView) findViewById(R.id.baidu_mapView);
+        mMapView.setOnClickListener(this);
         mMapController = mMapView.getController();
         mMapView.getController().setZoom(15);
         mMapView.getController().enableClick(true);
@@ -109,7 +108,7 @@ public class MainMapViewActivity extends Activity {
     public void createPaopao() {
         viewCache = getLayoutInflater().inflate(R.layout.custom_text_view, null);
         popupText = (TextView) viewCache.findViewById(R.id.textcache);
-        
+
         // 泡泡点击响应回调
         PopupClickListener popListener = new PopupClickListener() {
             @Override
@@ -160,8 +159,9 @@ public class MainMapViewActivity extends Activity {
             // 是手动触发请求或首次定位时，移动到定位点
             // 移动地图到定位点
             Log.d("LocationOverlay", "receive location, animate to it");
-            mMapController.animateTo(new GeoPoint((int) (locData.latitude * 1e6),
-                    (int) (locData.longitude * 1e6)));
+            // mMapController.animateTo(new GeoPoint((int) (locData.latitude *
+            // 1e6),
+            // (int) (locData.longitude * 1e6)));
         }
 
         public void onReceivePoi(BDLocation poiLocation) {
@@ -169,6 +169,37 @@ public class MainMapViewActivity extends Activity {
                 return;
             }
         }
+    }
+
+    PopupWindow popupWindow = null;
+    private View contentView = null;
+
+    /**
+     * @Title: showPopupWindow
+     * @Description:
+     * @throws
+     */
+    private void showPopupWindow() {
+        LayoutInflater inflater = getLayoutInflater();
+        contentView = inflater.inflate(R.layout.popup_window, null);
+        contentView.setOnClickListener(this);
+        popupWindow = new PopupWindow(contentView,
+                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        popupWindow.setOutsideTouchable(true);
+
+        // 计算位置
+        int latitude = (int) (locData.latitude * 1E6);
+        int lontitude = (int) (locData.longitude * 1E6);
+        mLocPoint.setLatitudeE6(latitude);
+        mLocPoint.setLongitudeE6(lontitude);
+
+        Projection projection = mMapView.getProjection();
+        Point popupPoint = new Point();
+        projection.toPixels(mLocPoint, popupPoint);
+
+        popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.LEFT | Gravity.TOP,
+                popupPoint.x - contentView.getWidth() / 2,
+                popupPoint.y - contentView.getHeight() / 2);
     }
 
     /**
@@ -192,15 +223,16 @@ public class MainMapViewActivity extends Activity {
          */
         @Override
         protected boolean dispatchTap() {
-
-            // 处理点击事件,弹出泡泡
-            popupText.setBackgroundResource(R.drawable.popup);
-            popupText.setText("我的位置");
-            Bitmap clickView = BMapUtil.getBitmapFromView(popupText);
-            pop.showPopup(clickView,
-                    new GeoPoint((int) (locData.latitude * 1e6), (int) (locData.longitude * 1e6)),
-                    8);
-            sendMessageToSogou();
+            showPopupWindow();
+            //
+            // // 处理点击事件,弹出泡泡
+            // popupText.setBackgroundResource(R.drawable.popup);
+            // popupText.setText("我的位置");
+            // Bitmap clickView = BMapUtil.getBitmapFromView(popupText);
+            // pop.showPopup(clickView,
+            // new GeoPoint((int) (locData.latitude * 1e6), (int)
+            // (locData.longitude * 1e6)),
+            // 8);
             return true;
         }
 
@@ -216,6 +248,12 @@ public class MainMapViewActivity extends Activity {
     protected void onResume() {
         mMapView.onResume();
         super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        closePopupWindow();
+        super.onStop();
     }
 
     @Override
@@ -246,45 +284,31 @@ public class MainMapViewActivity extends Activity {
         return true;
     }
 
-}
-
-/**
- * 继承MapView重写onTouchEvent实现泡泡处理操作
- * 
- * @author hejin
- */
-class MyLocationMapView extends MapView {
-    static PopupOverlay pop = null;// 弹出泡泡图层，点击图标使用
-
-    public MyLocationMapView(Context context) {
-        super(context);
-    }
-
-    public MyLocationMapView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public MyLocationMapView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    /**
+     * @Title: closePopupWindow
+     * @Description:
+     * @throws
+     */
+    private void closePopupWindow() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
     }
 
     /**
      * (非 Javadoc)
      * 
-     * @Title: onTouchEvent
+     * @Title: onClick
      * @Description:
-     * @param event
-     * @return
-     * @see com.baidu.mapapi.map.MapView#onTouchEvent(android.view.MotionEvent)
+     * @param v
+     * @see android.view.View.OnClickListener#onClick(android.view.View)
      */
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (!super.onTouchEvent(event)) {
-            // 消隐泡泡
-            if (pop != null && event.getAction() == MotionEvent.ACTION_UP) {
-                pop.hidePop();
-            }
+    public void onClick(View v) {
+        closePopupWindow();
+        if (v == contentView) {
+            sendMessageToSogou();
         }
-        return true;
     }
+
 }
