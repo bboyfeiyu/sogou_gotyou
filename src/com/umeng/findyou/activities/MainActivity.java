@@ -41,8 +41,9 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.FriendOverlay;
 import com.umeng.findyou.beans.FriendOverlay.OnOverlayTapListener;
-import com.umeng.findyou.shake.ShakeSensor;
-import com.umeng.findyou.shake.ShakeSensor.OnSensorListener;
+import com.umeng.findyou.beans.LocationEntity;
+import com.umeng.findyou.shake.BaseSensor;
+import com.umeng.findyou.shake.BaseSensor.OnSensorListener;
 import com.umeng.findyou.shake.ShakeSensorImpl;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
 import com.umeng.findyou.utils.ClipboardUtil;
@@ -72,10 +73,12 @@ public class MainActivity extends Activity {
     private LocationOverlay myLocationOverlay = null;
 
     private GeoPoint mGeoPoint = new GeoPoint(0, 0);
-    private GeoPoint mFriendGeoPoint = null;
+    // 我的位置entity
+    private LocationEntity mMyLocationEntity = new LocationEntity();
+    private LocationEntity mFriendEntity = new LocationEntity();
     private boolean isLocationOnitialized = false;
     // 摇一摇对象
-    private ShakeSensor mShakeSensor = null;
+    private BaseSensor mShakeSensor = null;
     // 声明一个振动器对象
     private Vibrator mVibrator = null;
     private static final String TAG = MainActivity.class.getName();
@@ -182,7 +185,8 @@ public class MainActivity extends Activity {
             Log.d(TAG, "### 粘贴板内容 : " + addr);
             GeoPoint geoPoint = LocationUtil.stringToGeoPoint(MainActivity.this, addr);
             if (geoPoint != null) {
-                mFriendGeoPoint = geoPoint;
+                mFriendEntity.setGeoPoint(geoPoint);
+                mFriendEntity.setAddress(addr);
                 addFriendToMap();
             }
         }
@@ -197,7 +201,7 @@ public class MainActivity extends Activity {
         Drawable mark = getResources().getDrawable(R.drawable.friend);
 
         // 用OverlayItem准备Overlay数据
-        OverlayItem friendItem = new OverlayItem(mFriendGeoPoint, "对方", "对方所在的位置");
+        OverlayItem friendItem = new OverlayItem(mFriendEntity.getGeoPoint(), "", "");
 
         FriendOverlay friendOverlay = new FriendOverlay(mark, mMapView);
         friendOverlay.setOnTapListener(new OnOverlayTapListener() {
@@ -299,13 +303,14 @@ public class MainActivity extends Activity {
         View addrView = inflater.inflate(R.layout.address_dialog, null);
         // 提示框
         final Dialog alertDialog = new Dialog(MainActivity.this, R.style.addr_dialog);
+        alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
         alertDialog.setContentView(addrView);
         alertDialog.show();
 
         // 文本编辑框
         final EditText editText = (EditText) addrView.findViewById(R.id.address_edit);
-        editText.setText(Constants.ADDRESS);
+        editText.setText(mMyLocationEntity.getAddress());
         // 确定按钮
         Button okButton = (Button) addrView.findViewById(R.id.addr_ok_btn);
         okButton.setOnClickListener(new OnClickListener() {
@@ -357,8 +362,10 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetAddrResult(MKAddrInfo addr, int code) {
+
+            String myAddr = buildAddress(addr);
             // 构建地址
-            Constants.ADDRESS = buildAddress(addr);
+            mMyLocationEntity.setAddress(myAddr);
         }
 
         @Override

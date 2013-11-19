@@ -22,7 +22,7 @@ import android.util.Log;
  * @version V1.0
  */
 
-public abstract class ShakeSensor implements SensorEventListener {
+public abstract class BaseSensor implements SensorEventListener {
 
     /**
      * 用户传递进来的Activity
@@ -59,7 +59,7 @@ public abstract class ShakeSensor implements SensorEventListener {
      * @Description: UMSensorBase Constructor
      * @param context
      */
-    protected ShakeSensor(Activity activity) {
+    protected BaseSensor(Activity activity) {
         mActivity = activity;
     }
 

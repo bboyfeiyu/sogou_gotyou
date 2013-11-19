@@ -14,11 +14,11 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 public class LocationEntity {
 
- // 北京西站
-//    GeoPoint ptLB = new GeoPoint( (int)(39.901375 * 1E6),(int)(116.329099 * 1E6)); 
+    // 北京西站
+    // GeoPoint ptLB = new GeoPoint( (int)(39.901375 * 1E6),(int)(116.329099 *
+    // 1E6));
 
-
-    private GeoPoint mLatLng = null;
+    private GeoPoint mGeoPoint = null;
     private String mAddress = "";
 
     /**
@@ -27,9 +27,54 @@ public class LocationEntity {
      * @param latLng
      * @param addr
      */
-    public LocationEntity(GeoPoint latLng, String addr) {
-        mLatLng = latLng;
+    public LocationEntity() {
+    }
+
+    /**
+     * @Title: LocationEntity
+     * @Description: LocationEntity Constructor
+     * @param latLng
+     * @param addr
+     */
+    public LocationEntity(GeoPoint geoPoint, String addr) {
+        mGeoPoint = geoPoint;
         mAddress = addr;
+    }
+
+    /**
+     * 获取 mGeoPoint
+     * 
+     * @return 返回 mGeoPoint
+     */
+    public GeoPoint getGeoPoint() {
+        return mGeoPoint;
+    }
+
+    /**
+     * 设置 mGeoPoint
+     * 
+     * @param 对mGeoPoint进行赋值
+     */
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.mGeoPoint = geoPoint;
+    }
+
+    /**
+     * 获取 mAddress
+     * 
+     * @return 返回 mAddress
+     */
+    public String getAddress() {
+        return mAddress;
+    }
+
+    /**
+     * 设置 mAddress
+     * 
+     * @param 对mAddress进行赋值
+     */
+    public void setAddress(String addr) {
+        this.mAddress = addr;
     }
 
     /**
@@ -42,7 +87,7 @@ public class LocationEntity {
      */
     @Override
     public String toString() {
-        return "LocationEntity [mLatLng=" + mLatLng + ", mAddress=" + mAddress + "]";
+        return "LocationEntity [mGeoPoint=" + mGeoPoint + ", mAddress=" + mAddress + "]";
     }
 
 }

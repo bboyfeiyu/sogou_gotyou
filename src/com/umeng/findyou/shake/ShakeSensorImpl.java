@@ -29,7 +29,7 @@ import android.util.Log;
  * @author Mr.Simple
  * @date Oct 5, 2013 2:51:37 PM
  */
-public class ShakeSensorImpl extends ShakeSensor {
+public class ShakeSensorImpl extends BaseSensor {
     /**
      * 速度阈值，当摇晃速度达到这值后产生作用
      */
