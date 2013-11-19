@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.TextUtils;
@@ -26,6 +27,7 @@ import com.baidu.mapapi.map.LocationData;
 import com.baidu.mapapi.map.MapController;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
+import com.baidu.mapapi.map.OverlayItem;
 import com.baidu.mapapi.search.MKAddrInfo;
 import com.baidu.mapapi.search.MKBusLineResult;
 import com.baidu.mapapi.search.MKDrivingRouteResult;
@@ -37,6 +39,8 @@ import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
+import com.umeng.findyou.beans.FriendOverlay;
+import com.umeng.findyou.beans.FriendOverlay.OnOverlayTapListener;
 import com.umeng.findyou.shake.ShakeSensor;
 import com.umeng.findyou.shake.ShakeSensor.OnSensorListener;
 import com.umeng.findyou.shake.ShakeSensorImpl;
@@ -179,9 +183,34 @@ public class MainActivity extends Activity {
             GeoPoint geoPoint = LocationUtil.stringToGeoPoint(MainActivity.this, addr);
             if (geoPoint != null) {
                 mFriendGeoPoint = geoPoint;
-                Log.d(TAG, "#### my friend geopoint : " + mFriendGeoPoint.toString());
+                addFriendToMap();
             }
         }
+    }
+
+    /**
+     * @Title: addFriendToMap
+     * @Description:
+     * @throws
+     */
+    private void addFriendToMap() {
+        Drawable mark = getResources().getDrawable(R.drawable.friend);
+
+        // 用OverlayItem准备Overlay数据
+        OverlayItem friendItem = new OverlayItem(mFriendGeoPoint, "对方", "对方所在的位置");
+
+        FriendOverlay friendOverlay = new FriendOverlay(mark, mMapView);
+        friendOverlay.setOnTapListener(new OnOverlayTapListener() {
+
+            @Override
+            public void onTap(int index) {
+                Toast.makeText(getApplicationContext(), "do sth", Toast.LENGTH_SHORT).show();
+            }
+        });
+        friendOverlay.addItem(friendItem);
+
+        mMapView.getOverlays().add(friendOverlay);
+        mMapView.refresh();
     }
 
     /**
