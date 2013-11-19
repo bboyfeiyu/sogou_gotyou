@@ -114,7 +114,6 @@ public class MainActivity extends Activity {
         mLocClient.requestLocation();
 
         checkClipboardText();
-        registerShake();
 
         // 定位图层初始化
         myLocationOverlay = new LocationOverlay(mMapView);
@@ -415,6 +414,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         mMapView.onResume();
+        registerShake();
         super.onResume();
     }
 
