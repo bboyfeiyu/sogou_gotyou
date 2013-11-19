@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#555555"
+    android:gravity="center" >
+
+    <!-- 交通工具选择 -->
+
+    <LinearLayout
+        android:id="@+id/vechcle_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#555555"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ToggleButton
+            android:id="@+id/bus_toggle_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/location"
+            android:textOff=""
+            android:textOn="" />
+
+        <ToggleButton
+            android:id="@+id/car_toggle_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/location"
+            android:textOff=""
+            android:textOn="" />
+
+        <ToggleButton
+            android:id="@+id/walk_toggle_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/location"
+            android:textOff=""
+            android:textOn="" />
+    </LinearLayout>
+
+    <!--  -->
+
+    <EditText
+        android:id="@+id/start_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vechcle_layout"
+        android:layout_margin="5dp"
+        android:hint="@string/start_addr" />
+
+    <EditText
+        android:id="@+id/dest_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_edit"
+        android:layout_margin="5dp"
+        android:hint="@string/dest_addr" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dest_edit"
+        android:layout_margin="5dp"
+        android:background="#555555"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_btn" />
+
+        <Button
+            android:id="@+id/nav_btn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:text="@string/ok_btn" />
+    </LinearLayout>
+
+</RelativeLayout>

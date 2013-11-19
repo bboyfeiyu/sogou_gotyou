@@ -42,6 +42,9 @@ import com.umeng.findyou.R;
 import com.umeng.findyou.beans.FriendOverlay;
 import com.umeng.findyou.beans.FriendOverlay.OnOverlayTapListener;
 import com.umeng.findyou.beans.LocationEntity;
+import com.umeng.findyou.beans.NavigationConfig;
+import com.umeng.findyou.dialog.NavigationDialog;
+import com.umeng.findyou.dialog.NavigationDialog.WhitchButton;
 import com.umeng.findyou.shake.BaseSensor;
 import com.umeng.findyou.shake.BaseSensor.OnSensorListener;
 import com.umeng.findyou.shake.ShakeSensorImpl;
@@ -81,6 +84,11 @@ public class MainActivity extends Activity {
     private BaseSensor mShakeSensor = null;
     // 声明一个振动器对象
     private Vibrator mVibrator = null;
+    /**
+     * 导航配置
+     */
+    private NavigationConfig mConfig = new NavigationConfig();
+
     private static final String TAG = MainActivity.class.getName();
 
     /**
@@ -208,7 +216,21 @@ public class MainActivity extends Activity {
 
             @Override
             public void onTap(int index) {
-                Toast.makeText(getApplicationContext(), "do sth", Toast.LENGTH_SHORT).show();
+                NavigationDialog dialog = new NavigationDialog(MainActivity.this,
+                        R.style.dialog_style);
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.setConfig(mConfig);
+                dialog.setOnClickListener(new NavigationDialog.OnClickListener() {
+
+                    @Override
+                    public void onClick(WhitchButton button) {
+                        if (button == WhitchButton.OK) {
+                            Toast.makeText(getApplicationContext(), "搜索路线", Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+                });
+                dialog.show();
             }
         });
         friendOverlay.addItem(friendItem);
@@ -302,7 +324,7 @@ public class MainActivity extends Activity {
         LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
         View addrView = inflater.inflate(R.layout.address_dialog, null);
         // 提示框
-        final Dialog alertDialog = new Dialog(MainActivity.this, R.style.addr_dialog);
+        final Dialog alertDialog = new Dialog(MainActivity.this, R.style.dialog_style);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
         alertDialog.setContentView(addrView);

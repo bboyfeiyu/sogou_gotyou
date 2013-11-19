@@ -1,7 +1,6 @@
 
 package com.umeng.findyou.beans;
 
-import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -12,7 +11,7 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
  * @version V1.0
  */
 
-public class NavgationConfig {
+public class NavigationConfig {
 
     private Vehicle mVehicle = Vehicle.BUS;
     private LocationEntity mStartEntity = null;
@@ -35,7 +34,7 @@ public class NavgationConfig {
      * @param start
      * @param dest
      */
-    public NavgationConfig() {
+    public NavigationConfig() {
 
     }
 
@@ -45,7 +44,7 @@ public class NavgationConfig {
      * @param start
      * @param dest
      */
-    public NavgationConfig(LocationEntity start, LocationEntity dest) {
+    public NavigationConfig(LocationEntity start, LocationEntity dest) {
         this(start, dest, Vehicle.BUS);
     }
 
@@ -56,7 +55,7 @@ public class NavgationConfig {
      * @param dest
      * @param vehicle
      */
-    public NavgationConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
+    public NavigationConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
         mStartEntity = start;
         mDestEntity = dest;
         mVehicle = vehicle;
