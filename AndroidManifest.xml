@@ -80,8 +80,11 @@
                 <action android:name="com.sogou.inputmethod.platform" />
             </intent-filter>
         </activity>
-        
-        <activity android:name=".activities.MainActivity" />
+        <!-- 设置页面 -->
+        <activity android:name=".activities.SettingActivity" />
+
+        <!-- 第一次使用应用的页面 -->
+        <activity android:name=".activities.GuideActivity" />
 
         <service
             android:name="com.baidu.location.f"

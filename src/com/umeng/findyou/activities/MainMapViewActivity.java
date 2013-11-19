@@ -2,9 +2,11 @@
 package com.umeng.findyou.activities;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,9 +14,10 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -40,6 +43,7 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.baidu.platform.comapi.map.Projection;
 import com.umeng.findyou.R;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
+import com.umeng.findyou.utils.ClipboardUtil;
 import com.umeng.findyou.utils.Constants;
 import com.umeng.findyou.utils.LocationUtil;
 import com.umeng.findyou.views.MyLocationMapView;
@@ -49,24 +53,30 @@ import com.umeng.findyou.views.MyLocationMapView;
  */
 public class MainMapViewActivity extends Activity implements OnClickListener {
 
-    // 定位相关
-    private LocationClient mLocClient;
-    private LocationData locData = null;
-    public MyLocationListenner myListener = new MyLocationListenner();
-
-    // 定位图层
-    locationOverlay myLocationOverlay = null;
-    // 弹出泡泡图层
-    private PopupOverlay pop = null;// 弹出泡泡图层，浏览节点时使用
-    private TextView popupText = null;// 泡泡view
-    private View viewCache = null;
-
     private BMapManager mBMapMan = null;
     // 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
     // 如果不处理touch事件，则无需继承，直接使用MapView即可
-    MyLocationMapView mMapView = null; // 地图View
+    private MyLocationMapView mMapView = null; // 地图View
     private MapController mMapController = null;
-    private GeoPoint mLocPoint = new GeoPoint(0, 0);
+
+    // 定位相关
+    private LocationClient mLocClient;
+    private LocationData locData = null;
+    public LocationListenner myListener = new LocationListenner();
+
+    // 定位图层
+    private locationOverlay myLocationOverlay = null;
+    PopupWindow mPopupWindow = null;
+    private View contentView = null;
+    // 弹出泡泡图层
+    private PopupOverlay mPopupOverlay = null;// 弹出泡泡图层，浏览节点时使用
+    private TextView popupText = null;// 泡泡view
+    private View viewCache = null;
+
+    private GeoPoint mGeoPoint = new GeoPoint(0, 0);
+    private GeoPoint mFriendGeoPoint = null;
+    private boolean isLocationOnitialized = false;
+    private static final String TAG = MainMapViewActivity.class.getName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,6 +110,8 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         mLocClient.start();
         mLocClient.requestLocation();
 
+        checkClipboardText();
+
         // 定位图层初始化
         myLocationOverlay = new locationOverlay(mMapView);
         myLocationOverlay.setMarker(getResources().getDrawable(R.drawable.location));
@@ -114,6 +126,24 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     }
 
     /**
+     * @Title: getClipboardText
+     * @Description: 获取剪切板中的内容
+     * @throws
+     */
+    private void checkClipboardText() {
+        // 获取剪切板中的地址
+        String addr = ClipboardUtil.getContent(getApplicationContext());
+        if (!TextUtils.isEmpty(addr) && addr.contains("#")) {
+            Log.d(TAG, "### 粘贴板内容 : " + addr);
+            GeoPoint geoPoint = LocationUtil.stringToGeoPoint(MainMapViewActivity.this, addr);
+            if (geoPoint != null) {
+                mFriendGeoPoint = geoPoint;
+                Log.d(TAG, "#### my friend geopoint : " + mFriendGeoPoint.toString());
+            }
+        }
+    }
+
+    /**
      * 创建弹出泡泡图层
      */
     public void createPaopao() {
@@ -124,23 +154,22 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         PopupClickListener popListener = new PopupClickListener() {
             @Override
             public void onClickedPopup(int index) {
-                sendMessageToSogou();
             }
         };
 
-        pop = new PopupOverlay(mMapView, popListener);
-        MyLocationMapView.pop = pop;
+        mPopupOverlay = new PopupOverlay(mMapView, popListener);
+        MyLocationMapView.pop = mPopupOverlay;
     }
 
     /**
      * @Title: sendMessageToSogou
-     * @Description:
+     * @Description: 将数据发送给搜狗输入法
      * @throws
      */
-    private void sendMessageToSogou() {
+    private void sendMessageToSogou(String addr) {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        bundle.putString(SogouEntryActivity.APP_RESULT_CONTENT_TAG, "北京市海淀区花园东路11号泰兴大厦");
+        bundle.putString(SogouEntryActivity.APP_RESULT_CONTENT_TAG, addr);
         intent.putExtras(bundle);
         setResult(Activity.RESULT_OK, intent);
         finish();
@@ -149,7 +178,7 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     /**
      * 定位SDK监听函数
      */
-    public class MyLocationListenner implements BDLocationListener {
+    public class LocationListenner implements BDLocationListener {
 
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -167,19 +196,29 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
             myLocationOverlay.setData(locData);
             // 更新图层数据执行刷新后生效
             mMapView.refresh();
-            // 是手动触发请求或首次定位时，移动到定位点
-            // 移动地图到定位点
-            Log.d("LocationOverlay", "receive location, animate to it");
 
             // 计算位置
             int latitude = (int) (locData.latitude * 1E6);
             int lontitude = (int) (locData.longitude * 1E6);
-            mLocPoint.setLatitudeE6(latitude);
-            mLocPoint.setLongitudeE6(lontitude);
+            mGeoPoint.setLatitudeE6(latitude);
+            mGeoPoint.setLongitudeE6(lontitude);
+            // 第一次移动到我的位置
+            if (!isLocationOnitialized) {
+                mMapController.animateTo(mGeoPoint);
+            }
             // 解析地址
-            LocationUtil.locationToAddress(mLocPoint, mBMapMan, mSearchListener);
+            LocationUtil.locationToAddress(mGeoPoint, mBMapMan, mSearchListener);
+            isLocationOnitialized = true;
         }
 
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onReceivePoi
+         * @Description: POI搜索的结果
+         * @param poiLocation
+         * @see com.baidu.location.BDLocationListener#onReceivePoi(com.baidu.location.BDLocation)
+         */
         public void onReceivePoi(BDLocation poiLocation) {
             if (poiLocation == null) {
                 return;
@@ -188,13 +227,92 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     }
 
     /**
+     * @Title: showAddrDialog
+     * @Description: 显示我的位置的dialog
+     * @throws
+     */
+    private void showAddrDialog() {
+        LayoutInflater inflater = LayoutInflater.from(MainMapViewActivity.this);
+        View addrView = inflater.inflate(R.layout.address_dialog, null);
+        // 提示框
+        final Dialog alertDialog = new Dialog(MainMapViewActivity.this, R.style.addr_dialog);
+        alertDialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
+        alertDialog.setContentView(addrView);
+        alertDialog.show();
+
+        // 文本编辑框
+        final EditText editText = (EditText) addrView.findViewById(R.id.address_edit);
+        editText.setText(Constants.ADDRESS);
+        // 确定按钮
+        Button okButton = (Button) addrView.findViewById(R.id.addr_ok_btn);
+        okButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String content = editText.getText().toString().trim();
+                sendMessageToSogou(content);
+            }
+        });
+
+        // 取消
+        Button cancelButton = (Button) addrView.findViewById(R.id.addr_cancel_btn);
+        cancelButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    /**
+     * (非 Javadoc)
      * 
+     * @Title: onClick
+     * @Description:
+     * @param v
+     * @see android.view.View.OnClickListener#onClick(android.view.View)
+     */
+    @Override
+    public void onClick(View v) {
+        closePopupWindow();
+        if (v == contentView) {
+            // 显示我的地址dialog
+            showAddrDialog();
+        }
+    }
+
+    /**
+     * @Title: buildAddress
+     * @Description:
+     * @return
+     * @throws
+     */
+    private String buildAddress(MKAddrInfo addr) {
+        return addr.strAddr
+                + " # (" + locData.latitude + "," + locData.longitude
+                + ")";
+    }
+
+    /**
+     * 搜索监听器
      */
     private MKSearchListener mSearchListener = new MKSearchListener() {
 
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onGetAddrResult
+         * @Description: 地址搜索结果
+         * @param addr
+         * @param code
+         * @see com.baidu.mapapi.search.MKSearchListener#onGetAddrResult(com.baidu.mapapi.search.MKAddrInfo,
+         *      int)
+         */
         @Override
         public void onGetAddrResult(MKAddrInfo addr, int code) {
-            Toast.makeText(getApplicationContext(), addr.strAddr, Toast.LENGTH_SHORT).show();
+            // 构建地址
+            Constants.ADDRESS = buildAddress(addr);
         }
 
         @Override
@@ -238,9 +356,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         }
     };
 
-    PopupWindow popupWindow = null;
-    private View contentView = null;
-
     /**
      * @Title: showPopupWindow
      * @Description:
@@ -250,17 +365,17 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         LayoutInflater inflater = getLayoutInflater();
         contentView = inflater.inflate(R.layout.popup_window, null);
         contentView.setOnClickListener(this);
-        popupWindow = new PopupWindow(contentView,
+        mPopupWindow = new PopupWindow(contentView,
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        popupWindow.setOutsideTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
 
         Projection projection = mMapView.getProjection();
         Point popupPoint = new Point();
-        projection.toPixels(mLocPoint, popupPoint);
+        projection.toPixels(mGeoPoint, popupPoint);
 
-        popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.LEFT | Gravity.TOP,
-                popupPoint.x - contentView.getWidth() / 2,
-                popupPoint.y - contentView.getHeight() / 2);
+        mPopupWindow.showAtLocation(getWindow().getDecorView(), Gravity.LEFT | Gravity.TOP,
+                popupPoint.x - contentView.getWidth() - 100,
+                popupPoint.y - contentView.getHeight() / 2 - 20);
     }
 
     /**
@@ -284,7 +399,8 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
          */
         @Override
         protected boolean dispatchTap() {
-            showPopupWindow();
+            // showPopupWindow();
+            showAddrDialog();
             return true;
         }
 
@@ -318,6 +434,14 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         super.onDestroy();
     }
 
+    /**
+     * (非 Javadoc)
+     * 
+     * @Title: onSaveInstanceState
+     * @Description:
+     * @param outState
+     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -325,12 +449,29 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
 
     }
 
+    /**
+     * (非 Javadoc)
+     * 
+     * @Title: onRestoreInstanceState
+     * @Description:
+     * @param savedInstanceState
+     * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mMapView.onRestoreInstanceState(savedInstanceState);
     }
 
+    /**
+     * (非 Javadoc)
+     * 
+     * @Title: onCreateOptionsMenu
+     * @Description:
+     * @param menu
+     * @return
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
@@ -338,28 +479,12 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
 
     /**
      * @Title: closePopupWindow
-     * @Description:
+     * @Description: 关闭popup window
      * @throws
      */
     private void closePopupWindow() {
-        if (popupWindow != null && popupWindow.isShowing()) {
-            popupWindow.dismiss();
-        }
-    }
-
-    /**
-     * (非 Javadoc)
-     * 
-     * @Title: onClick
-     * @Description:
-     * @param v
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
-    @Override
-    public void onClick(View v) {
-        closePopupWindow();
-        if (v == contentView) {
-            sendMessageToSogou();
+        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
         }
     }
 

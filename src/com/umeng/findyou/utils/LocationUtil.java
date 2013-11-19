@@ -1,8 +1,10 @@
 
 package com.umeng.findyou.utils;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.baidu.mapapi.BMapManager;
-import com.baidu.mapapi.map.LocationData;
 import com.baidu.mapapi.search.MKSearch;
 import com.baidu.mapapi.search.MKSearchListener;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
@@ -22,31 +24,39 @@ public class LocationUtil {
 
     /**
      * @Title: locationToString
-     * @Description:
+     * @Description: 将坐标转换成地址
      * @return
      * @throws
      */
     public static void locationToAddress(GeoPoint location,
             BMapManager manager, MKSearchListener listener) {
-        // Bundle extras = location.getExtras();
-        // if (extras != null) {
-        // addr = extras.getString("desc") + " -- (" + location.getLatitude() +
-        // ","
-        // + location.getLongitude() + ")";
-        // Log.d("", "### my location addr : " + addr);
-        // }
         mMKSearch.init(manager, listener);
-        mMKSearch.reverseGeocode(location); // 逆地址解析
+        // 逆地址解析
+        mMKSearch.reverseGeocode(location);
     }
-    
-    public static String locationDataToString(LocationData locData) {
-        // Bundle extras = location.getExtras();
-        // if (extras != null) {
-        // addr = extras.getString("desc") + " -- (" + location.getLatitude() +
-        // ","
-        // + location.getLongitude() + ")";
-        // Log.d("", "### my location addr : " + addr);
-        // }
-        return "";
+
+    /**
+     * @Title: stringToGeoPoint
+     * @Description: 字符串转换成GeoPoint
+     * @param context
+     * @param addr 剪切板中的地址
+     * @return
+     * @throws
+     */
+    public static GeoPoint stringToGeoPoint(Context context, String addr) {
+        GeoPoint friendPoint = null;
+        if (addr.contains("#")) {
+            String geoPointStr = addr.split("#")[1]
+                    .replace(" ", "")
+                    .replace("(", "")
+                    .replace(")", "");
+            String[] points = geoPointStr.split(",");
+            int latitude = (int) (Integer.valueOf(points[0]) * 1e6);
+            int longtitude = (int) (Integer.valueOf(points[1]) * 1e6);
+            friendPoint = new GeoPoint(latitude, longtitude);
+        } else {
+            Toast.makeText(context, "抱歉,地址格式不对...", Toast.LENGTH_SHORT).show();
+        }
+        return friendPoint;
     }
 }

@@ -6,7 +6,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="location">我的位置</string>
     <string name="navigation">导航至好友位置</string>
-    <string name="location_detail">获取位置信息</string>
-    <string name="nav_detail">获取导航信息</string>
+    <string name="ok_btn">确定</string>
+    <string name="cancel_btn">取消</string>
+    <string name="hint">没有获取到地址</string>
 
 </resources>

@@ -20,7 +20,6 @@ public class NavgationDialog extends Dialog {
 
     public NavgationDialog(Context context) {
         super(context);
-        getWindow().setWindowAnimations(R.anim.dialog_anim);
     }
 
     public NavgationDialog(Context context, int theme) {

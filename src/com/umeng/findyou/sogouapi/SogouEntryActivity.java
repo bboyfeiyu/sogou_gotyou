@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.sogou.inputmethod.sdk.SogouAPI;
-import com.umeng.findyou.activities.MainActivity;
 import com.umeng.findyou.activities.MainMapViewActivity;
 
 public class SogouEntryActivity extends Activity {
