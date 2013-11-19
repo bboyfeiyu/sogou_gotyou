@@ -46,13 +46,13 @@ public class LocationUtil {
     public static GeoPoint stringToGeoPoint(Context context, String addr) {
         GeoPoint friendPoint = null;
         if (addr.contains("#")) {
-            String geoPointStr = addr.split("#")[1]
+            String geoPointStr = addr.split( Constants.ADDR_FLAG )[1]
                     .replace(" ", "")
                     .replace("(", "")
                     .replace(")", "");
             String[] points = geoPointStr.split(",");
-            int latitude = (int) (Integer.valueOf(points[0]) * 1e6);
-            int longtitude = (int) (Integer.valueOf(points[1]) * 1e6);
+            int latitude = (int) (Float.valueOf(points[0]) * 1e6);
+            int longtitude = (int) (Float.valueOf(points[1]) * 1e6);
             friendPoint = new GeoPoint(latitude, longtitude);
         } else {
             Toast.makeText(context, "抱歉,地址格式不对...", Toast.LENGTH_SHORT).show();

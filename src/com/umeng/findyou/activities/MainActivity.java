@@ -3,21 +3,19 @@ package com.umeng.findyou.activities;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Service;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.PopupWindow;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -28,8 +26,6 @@ import com.baidu.mapapi.map.LocationData;
 import com.baidu.mapapi.map.MapController;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
-import com.baidu.mapapi.map.PopupClickListener;
-import com.baidu.mapapi.map.PopupOverlay;
 import com.baidu.mapapi.search.MKAddrInfo;
 import com.baidu.mapapi.search.MKBusLineResult;
 import com.baidu.mapapi.search.MKDrivingRouteResult;
@@ -40,8 +36,10 @@ import com.baidu.mapapi.search.MKSuggestionResult;
 import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
-import com.baidu.platform.comapi.map.Projection;
 import com.umeng.findyou.R;
+import com.umeng.findyou.shake.ShakeSensor;
+import com.umeng.findyou.shake.ShakeSensor.OnSensorListener;
+import com.umeng.findyou.shake.ShakeSensorImpl;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
 import com.umeng.findyou.utils.ClipboardUtil;
 import com.umeng.findyou.utils.Constants;
@@ -49,9 +47,11 @@ import com.umeng.findyou.utils.LocationUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
 /**
- * 此demo用来展示如何结合定位SDK实现定位，并使用MyLocationOverlay绘制定位位置 同时展示如何使用自定义图标绘制并点击时弹出泡泡
+ * @ClassName: MainActivity
+ * @Description:
+ * @author Honghui He
  */
-public class MainMapViewActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity {
 
     private BMapManager mBMapMan = null;
     // 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
@@ -65,19 +65,25 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     public LocationListenner myListener = new LocationListenner();
 
     // 定位图层
-    private locationOverlay myLocationOverlay = null;
-    PopupWindow mPopupWindow = null;
-    private View contentView = null;
-    // 弹出泡泡图层
-    private PopupOverlay mPopupOverlay = null;// 弹出泡泡图层，浏览节点时使用
-    private TextView popupText = null;// 泡泡view
-    private View viewCache = null;
+    private LocationOverlay myLocationOverlay = null;
 
     private GeoPoint mGeoPoint = new GeoPoint(0, 0);
     private GeoPoint mFriendGeoPoint = null;
     private boolean isLocationOnitialized = false;
-    private static final String TAG = MainMapViewActivity.class.getName();
+    // 摇一摇对象
+    private ShakeSensor mShakeSensor = null;
+    // 声明一个振动器对象
+    private Vibrator mVibrator = null;
+    private static final String TAG = MainActivity.class.getName();
 
+    /**
+     * (非 Javadoc)
+     * 
+     * @Title: onCreate
+     * @Description:
+     * @param savedInstanceState
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,13 +95,10 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
 
         // 地图初始化
         mMapView = (MyLocationMapView) findViewById(R.id.baidu_mapView);
-        mMapView.setOnClickListener(this);
         mMapController = mMapView.getController();
         mMapView.getController().setZoom(15);
         mMapView.getController().enableClick(true);
         mMapView.setBuiltInZoomControls(true);
-        // 创建 弹出泡泡图层
-        createPaopao();
 
         // 定位初始化
         mLocClient = new LocationClient(this);
@@ -111,9 +114,10 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         mLocClient.requestLocation();
 
         checkClipboardText();
+        registerShake();
 
         // 定位图层初始化
-        myLocationOverlay = new locationOverlay(mMapView);
+        myLocationOverlay = new LocationOverlay(mMapView);
         myLocationOverlay.setMarker(getResources().getDrawable(R.drawable.location));
         // 设置定位数据
         myLocationOverlay.setData(locData);
@@ -126,6 +130,44 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     }
 
     /**
+     * @Title: registerShake
+     * @Description: 注册摇一摇定位功能
+     * @throws
+     */
+    private void registerShake() {
+        if (mShakeSensor == null) {
+            mShakeSensor = new ShakeSensorImpl(MainActivity.this);
+        } else {
+            mShakeSensor.setParentActivity(MainActivity.this);
+        }
+        mShakeSensor.setSensorListener(new OnSensorListener() {
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(getApplicationContext(), "定位到我的位置", Toast.LENGTH_SHORT).show();
+                vibrate();
+                animToMyLocation();
+            }
+        });
+        mShakeSensor.register();
+    }
+
+    /**
+     * @Title: vibrate
+     * @Description: 震动效果
+     * @throws
+     */
+    private void vibrate() {
+        if (mVibrator == null) {
+            mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+        }
+        mVibrator.vibrate(new long[] {
+                100, 30, 100, 80
+        }, -1);
+
+    }
+
+    /**
      * @Title: getClipboardText
      * @Description: 获取剪切板中的内容
      * @throws
@@ -133,32 +175,14 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     private void checkClipboardText() {
         // 获取剪切板中的地址
         String addr = ClipboardUtil.getContent(getApplicationContext());
-        if (!TextUtils.isEmpty(addr) && addr.contains("#")) {
+        if (!TextUtils.isEmpty(addr) && addr.contains(Constants.ADDR_FLAG)) {
             Log.d(TAG, "### 粘贴板内容 : " + addr);
-            GeoPoint geoPoint = LocationUtil.stringToGeoPoint(MainMapViewActivity.this, addr);
+            GeoPoint geoPoint = LocationUtil.stringToGeoPoint(MainActivity.this, addr);
             if (geoPoint != null) {
                 mFriendGeoPoint = geoPoint;
                 Log.d(TAG, "#### my friend geopoint : " + mFriendGeoPoint.toString());
             }
         }
-    }
-
-    /**
-     * 创建弹出泡泡图层
-     */
-    public void createPaopao() {
-        viewCache = getLayoutInflater().inflate(R.layout.custom_text_view, null);
-        popupText = (TextView) viewCache.findViewById(R.id.textcache);
-
-        // 泡泡点击响应回调
-        PopupClickListener popListener = new PopupClickListener() {
-            @Override
-            public void onClickedPopup(int index) {
-            }
-        };
-
-        mPopupOverlay = new PopupOverlay(mMapView, popListener);
-        MyLocationMapView.pop = mPopupOverlay;
     }
 
     /**
@@ -173,6 +197,17 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
         intent.putExtras(bundle);
         setResult(Activity.RESULT_OK, intent);
         finish();
+    }
+
+    /**
+     * @Title: animToMyLocation
+     * @Description:
+     * @throws
+     */
+    private void animToMyLocation() {
+        if (mMapController != null) {
+            mMapController.animateTo(mGeoPoint);
+        }
     }
 
     /**
@@ -204,7 +239,7 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
             mGeoPoint.setLongitudeE6(lontitude);
             // 第一次移动到我的位置
             if (!isLocationOnitialized) {
-                mMapController.animateTo(mGeoPoint);
+                animToMyLocation();
             }
             // 解析地址
             LocationUtil.locationToAddress(mGeoPoint, mBMapMan, mSearchListener);
@@ -232,10 +267,10 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
      * @throws
      */
     private void showAddrDialog() {
-        LayoutInflater inflater = LayoutInflater.from(MainMapViewActivity.this);
+        LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
         View addrView = inflater.inflate(R.layout.address_dialog, null);
         // 提示框
-        final Dialog alertDialog = new Dialog(MainMapViewActivity.this, R.style.addr_dialog);
+        final Dialog alertDialog = new Dialog(MainActivity.this, R.style.addr_dialog);
         alertDialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
         alertDialog.setContentView(addrView);
         alertDialog.show();
@@ -266,23 +301,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     }
 
     /**
-     * (非 Javadoc)
-     * 
-     * @Title: onClick
-     * @Description:
-     * @param v
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
-    @Override
-    public void onClick(View v) {
-        closePopupWindow();
-        if (v == contentView) {
-            // 显示我的地址dialog
-            showAddrDialog();
-        }
-    }
-
-    /**
      * @Title: buildAddress
      * @Description:
      * @return
@@ -290,7 +308,7 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
      */
     private String buildAddress(MKAddrInfo addr) {
         return addr.strAddr
-                + " # (" + locData.latitude + "," + locData.longitude
+                + "  " + Constants.ADDR_FLAG + " (" + locData.latitude + "," + locData.longitude
                 + ")";
     }
 
@@ -357,35 +375,18 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     };
 
     /**
-     * @Title: showPopupWindow
-     * @Description:
-     * @throws
-     */
-    private void showPopupWindow() {
-        LayoutInflater inflater = getLayoutInflater();
-        contentView = inflater.inflate(R.layout.popup_window, null);
-        contentView.setOnClickListener(this);
-        mPopupWindow = new PopupWindow(contentView,
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        mPopupWindow.setOutsideTouchable(true);
-
-        Projection projection = mMapView.getProjection();
-        Point popupPoint = new Point();
-        projection.toPixels(mGeoPoint, popupPoint);
-
-        mPopupWindow.showAtLocation(getWindow().getDecorView(), Gravity.LEFT | Gravity.TOP,
-                popupPoint.x - contentView.getWidth() - 100,
-                popupPoint.y - contentView.getHeight() / 2 - 20);
-    }
-
-    /**
      * @ClassName: locationOverlay
      * @Description: 继承MyLocationOverlay重写dispatchTap实现点击处理
      * @author Honghui He
      */
-    public class locationOverlay extends MyLocationOverlay {
+    public class LocationOverlay extends MyLocationOverlay {
 
-        public locationOverlay(MapView mapView) {
+        /**
+         * @Title: LocationOverlay
+         * @Description: LocationOverlay Constructor
+         * @param mapView
+         */
+        public LocationOverlay(MapView mapView) {
             super(mapView);
         }
 
@@ -399,7 +400,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
          */
         @Override
         protected boolean dispatchTap() {
-            // showPopupWindow();
             showAddrDialog();
             return true;
         }
@@ -420,7 +420,7 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
 
     @Override
     protected void onStop() {
-        closePopupWindow();
+        mShakeSensor.unregister();
         super.onStop();
     }
 
@@ -475,17 +475,6 @@ public class MainMapViewActivity extends Activity implements OnClickListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
-    }
-
-    /**
-     * @Title: closePopupWindow
-     * @Description: 关闭popup window
-     * @throws
-     */
-    private void closePopupWindow() {
-        if (mPopupWindow != null && mPopupWindow.isShowing()) {
-            mPopupWindow.dismiss();
-        }
     }
 
 }
