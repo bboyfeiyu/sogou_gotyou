@@ -218,6 +218,7 @@ public class MainActivity extends Activity {
             public void onTap(int index) {
                 NavigationDialog dialog = new NavigationDialog(MainActivity.this,
                         R.style.dialog_style);
+                dialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
                 dialog.setCanceledOnTouchOutside(true);
                 dialog.setConfig(mConfig);
                 dialog.setOnClickListener(new NavigationDialog.OnClickListener() {

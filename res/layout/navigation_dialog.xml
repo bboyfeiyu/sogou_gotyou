@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#555555"
+    android:background="@drawable/layout_corner"
     android:gravity="center" >
 
     <!-- 交通工具选择 -->
@@ -11,7 +11,7 @@
         android:id="@+id/vechcle_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#555555"
+        android:background="#cccccc"
         android:gravity="center"
         android:orientation="horizontal" >
 
@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/dest_edit"
         android:layout_margin="5dp"
-        android:background="#555555"
+        android:background="#cccccc"
         android:gravity="center"
         android:orientation="horizontal" >
 
