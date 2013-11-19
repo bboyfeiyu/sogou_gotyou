@@ -15,10 +15,8 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 public class NavgationConfig {
 
     private Vehicle mVehicle = Vehicle.BUS;
-    private GeoPoint mStartPoint = null;
-    private String mStartStr = "";
-    private GeoPoint mDestPoint = null;
-    private String mDestStr = "";
+    private LocationEntity mStartEntity = null;
+    private LocationEntity mDestEntity = null;
 
     /**
      * @ClassName: Vehicle
@@ -37,7 +35,17 @@ public class NavgationConfig {
      * @param start
      * @param dest
      */
-    public NavgationConfig(GeoPoint start, GeoPoint dest) {
+    public NavgationConfig() {
+
+    }
+
+    /**
+     * @Title: NavgationConfig
+     * @Description: NavgationConfig Constructor
+     * @param start
+     * @param dest
+     */
+    public NavgationConfig(LocationEntity start, LocationEntity dest) {
         this(start, dest, Vehicle.BUS);
     }
 
@@ -48,27 +56,60 @@ public class NavgationConfig {
      * @param dest
      * @param vehicle
      */
-    public NavgationConfig(GeoPoint start, GeoPoint dest, Vehicle vehicle) {
-        mStartPoint = start;
-        mDestPoint = dest;
+    public NavgationConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
+        mStartEntity = start;
+        mDestEntity = dest;
         mVehicle = vehicle;
     }
 
-    /** (非 Javadoc)
+    /**
+     * 获取 mStartEntity
+     * 
+     * @return 返回 mStartEntity
+     */
+    public LocationEntity getStartEntity() {
+        return mStartEntity;
+    }
+
+    /**
+     * 设置 mStartEntity
+     * 
+     * @param 对mStartEntity进行赋值
+     */
+    public void setStartEntity(LocationEntity startEntity) {
+        this.mStartEntity = startEntity;
+    }
+
+    /**
+     * 获取 mDestEntity
+     * 
+     * @return 返回 mDestEntity
+     */
+    public LocationEntity getDestEntity() {
+        return mDestEntity;
+    }
+
+    /**
+     * 设置 mDestEntity
+     * 
+     * @param 对mDestEntity进行赋值
+     */
+    public void setDestEntity(LocationEntity destEntity) {
+        this.mDestEntity = destEntity;
+    }
+
+    /**
+     * (非 Javadoc)
+     * 
      * @Title: toString
-     * @Description: 
-     * 
-     * 
+     * @Description:
      * @return
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return "NavgationConfig [mVehicle=" + mVehicle + ", mStartLatLng=" + mStartPoint
-                + ", mStartStr=" + mStartStr + ", mDestLatLng=" + mDestPoint + ", mDestStr="
-                + mDestStr + "]";
+        return "NavgationConfig [mVehicle=" + mVehicle + ", mStartEntity=" + mStartEntity
+                + ", mDestEntity=" + mDestEntity + "]";
     }
-    
-    
 
 }
