@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
             mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
         }
         mVibrator.vibrate(new long[] {
-                100, 30, 100, 80
+                100, 10, 100, 60
         }, -1);
 
     }
