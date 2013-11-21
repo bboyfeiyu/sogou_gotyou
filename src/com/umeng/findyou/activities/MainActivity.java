@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -102,7 +103,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.getWindow().requestFeature(Window.FEATURE_NO_TITLE) ;
         mBMapMan = new BMapManager(getApplication());
         mBMapMan.init(Constants.BAIDU_MAP_KEY, null);
 
