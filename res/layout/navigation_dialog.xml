@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/location"
+            android:background="@drawable/bus_style"
             android:textOff=""
             android:textOn="" />
 
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/location"
+            android:background="@drawable/car_style"
             android:textOff=""
             android:textOn="" />
 
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/location"
+            android:background="@drawable/foot_style"
             android:textOff=""
             android:textOn="" />
     </LinearLayout>
