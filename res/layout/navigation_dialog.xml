@@ -15,7 +15,7 @@
         android:gravity="center"
         android:orientation="horizontal" >
 
-        <ToggleButton
+        <ImageButton
             android:id="@+id/bus_toggle_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:textOff=""
             android:textOn="" />
 
-        <ToggleButton
+        <ImageButton
             android:id="@+id/car_toggle_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             android:textOff=""
             android:textOn="" />
 
-        <ToggleButton
+        <ImageButton
             android:id="@+id/walk_toggle_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

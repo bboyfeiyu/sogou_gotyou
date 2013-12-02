@@ -65,7 +65,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.umeng.findyou.activities.MainActivity"
+            android:name="com.umeng.findyou.activities.SplashActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -81,6 +81,9 @@
                 <action android:name="com.sogou.inputmethod.platform" />
             </intent-filter>
         </activity>
+        <!-- main页面 -->
+        <activity android:name=".activities.MainActivity" />
+
         <!-- 设置页面 -->
         <activity android:name=".activities.SettingActivity" />
 

@@ -5,7 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ToggleButton;
+import android.widget.ImageButton;
 
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.NavigationConfig;
@@ -36,15 +36,15 @@ public class NavigationDialog extends Dialog {
     /**
      * 
      */
-    private ToggleButton mBusToggleButton = null;
+    private ImageButton mBusToggleButton = null;
     /**
      * 
      */
-    private ToggleButton mCarToggleButton = null;
+    private ImageButton mCarToggleButton = null;
     /**
      * 
      */
-    private ToggleButton mWalkToggleButton = null;
+    private ImageButton mWalkToggleButton = null;
 
     /**
      * 
@@ -79,7 +79,7 @@ public class NavigationDialog extends Dialog {
     private void initViews() {
         setContentView(R.layout.navigation_dialog);
 
-        mBusToggleButton = (ToggleButton) findViewById(R.id.bus_toggle_btn);
+        mBusToggleButton = (ImageButton) findViewById(R.id.bus_toggle_btn);
         mBusToggleButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -88,7 +88,7 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mCarToggleButton = (ToggleButton) findViewById(R.id.car_toggle_btn);
+        mCarToggleButton = (ImageButton) findViewById(R.id.car_toggle_btn);
         mCarToggleButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -97,7 +97,7 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mWalkToggleButton = (ToggleButton) findViewById(R.id.walk_toggle_btn);
+        mWalkToggleButton = (ImageButton) findViewById(R.id.walk_toggle_btn);
         mWalkToggleButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
