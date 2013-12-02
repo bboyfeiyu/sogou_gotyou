@@ -47,15 +47,15 @@ public class ViewPagerAdapter extends PagerAdapter {
     }
 
     /**
-     *  销毁arg1位置的界面(非 Javadoc)
+     * 销毁arg1位置的界面(非 Javadoc)
+     * 
      * @Title: destroyItem
-     * @Description: 
-     * 
-     * 
+     * @Description:
      * @param arg0
      * @param arg1
      * @param arg2
-     * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View, int, java.lang.Object)
+     * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View,
+     *      int, java.lang.Object)
      */
     @Override
     public void destroyItem(View arg0, int arg1, Object arg2) {
@@ -67,11 +67,10 @@ public class ViewPagerAdapter extends PagerAdapter {
     }
 
     /**
-     *  获得当前界面数(非 Javadoc)
+     * 获得当前界面数(非 Javadoc)
+     * 
      * @Title: getCount
-     * @Description: 
-     * 
-     * 
+     * @Description:
      * @return
      * @see android.support.v4.view.PagerAdapter#getCount()
      */
@@ -84,21 +83,22 @@ public class ViewPagerAdapter extends PagerAdapter {
     }
 
     /**
-     *  初始化arg1位置的界面(非 Javadoc)
+     * 初始化position位置的界面, 即最后一页 (非 Javadoc)
+     * 
      * @Title: instantiateItem
-     * @Description: 
-     * 
-     * 
+     * @Description:
      * @param arg0
      * @param arg1
      * @return
-     * @see android.support.v4.view.PagerAdapter#instantiateItem(android.view.View, int)
+     * @see android.support.v4.view.PagerAdapter#instantiateItem(android.view.View,
+     *      int)
      */
     @Override
-    public Object instantiateItem(View arg0, int arg1) {
-        ((ViewPager) arg0).addView(mViews.get(arg1), 0);
-        if (arg1 == mViews.size() - 1) {
-            ImageView mStartWeiboImageButton = (ImageView) arg0
+    public Object instantiateItem(View view, int position) {
+        ((ViewPager) view).addView(mViews.get(position), 0);
+        if (position == mViews.size() - 1) {
+            // 引导页面上的按钮
+            ImageView mStartWeiboImageButton = (ImageView) view
                     .findViewById(R.id.iv_start_weibo);
             mStartWeiboImageButton.setOnClickListener(new OnClickListener() {
 
@@ -107,19 +107,16 @@ public class ViewPagerAdapter extends PagerAdapter {
                     // 设置已经引导
                     setGuided();
                     goHome();
-
                 }
 
             });
         }
-        return mViews.get(arg1);
+        return mViews.get(position);
     }
 
     /**
      * @Title: goHome
-     * @Description: 
-     *
-     *       
+     * @Description:
      * @throws
      */
     private void goHome() {
@@ -143,15 +140,15 @@ public class ViewPagerAdapter extends PagerAdapter {
     }
 
     /**
-     *  判断是否由对象生成界面(非 Javadoc)
+     * 判断是否由对象生成界面(非 Javadoc)
+     * 
      * @Title: isViewFromObject
-     * @Description: 
-     * 
-     * 
+     * @Description:
      * @param arg0
      * @param arg1
      * @return
-     * @see android.support.v4.view.PagerAdapter#isViewFromObject(android.view.View, java.lang.Object)
+     * @see android.support.v4.view.PagerAdapter#isViewFromObject(android.view.View,
+     *      java.lang.Object)
      */
     @Override
     public boolean isViewFromObject(View arg0, Object arg1) {
