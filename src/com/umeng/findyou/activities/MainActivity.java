@@ -27,19 +27,23 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.map.LocationData;
+import com.baidu.mapapi.map.MKEvent;
 import com.baidu.mapapi.map.MapController;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
 import com.baidu.mapapi.map.OverlayItem;
 import com.baidu.mapapi.map.RouteOverlay;
+import com.baidu.mapapi.map.TransitOverlay;
 import com.baidu.mapapi.search.MKAddrInfo;
 import com.baidu.mapapi.search.MKBusLineResult;
 import com.baidu.mapapi.search.MKDrivingRouteResult;
+import com.baidu.mapapi.search.MKLine;
 import com.baidu.mapapi.search.MKPoiResult;
 import com.baidu.mapapi.search.MKRoute;
 import com.baidu.mapapi.search.MKSearchListener;
 import com.baidu.mapapi.search.MKShareUrlResult;
 import com.baidu.mapapi.search.MKSuggestionResult;
+import com.baidu.mapapi.search.MKTransitRoutePlan;
 import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
@@ -272,8 +276,8 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(WhitchButton button, NavConfig config) {
                         if (button == WhitchButton.OK) {
-                            SearchUtil.drivingSearch(mMyLocationEntity, mFriendEntity);
-                            Toast.makeText(getApplicationContext(), "搜索路线",
+                            SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
+                            Toast.makeText(getApplicationContext(), "路线搜索中,请稍侯...",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -481,7 +485,7 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "### 搜索失败 ");
                 return;
             }
-
+            Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
             // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
             // 显示路线
             RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView);
@@ -520,17 +524,57 @@ public class MainActivity extends Activity {
         public void onGetTransitRouteResult(MKTransitRouteResult result, int error) {
             // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
 
-            if (error != 0 || result == null) {
-                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG).show();
+            // 起点或终点有歧义，需要选择具体的城市列表或地址列表
+            if (error == MKEvent.ERROR_ROUTE_ADDR) {
+                // 遍历所有地址
+                // ArrayList<MKPoiInfo> stPois =
+                // res.getAddrResult().mStartPoiList;
+                // ArrayList<MKPoiInfo> enPois =
+                // res.getAddrResult().mEndPoiList;
+                // ArrayList<MKCityListInfo> stCities =
+                // res.getAddrResult().mStartCityList;
+                // ArrayList<MKCityListInfo> enCities =
+                // res.getAddrResult().mEndCityList;
                 return;
             }
-            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView);
-            MKRoute busRoute = result.getPlan(0).getRoute(0);
-            routeOverlay.setData(busRoute);
+            if (error != 0 || result == null) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 路线层
+            TransitOverlay transitOverlay = new TransitOverlay(MainActivity.this, mMapView);
+            MKTransitRoutePlan routePlan = result.getPlan(1);
+            Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000 + " 千米");
+            Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
+            Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
+            Log.d(TAG, "### 描述: " + routePlan.getContent());
+
+            int lineNum = routePlan.getNumLines();
+            // 获取路线描述
+            for (int i = 0; i < routePlan.getNumRoute(); i++) {
+                MKRoute route = routePlan.getRoute(i);
+                Log.d(TAG, "### 步行 : " + route.getTip());
+                if (i < lineNum) {
+                    MKLine line = routePlan.getLine(i);
+                    Log.d(TAG, "### 乘车 : " + line.getTip());
+                }
+            }
+
+            // 此处仅展示一个方案作为示例
+            transitOverlay.setData(routePlan);
+            // 清除其他图层
             mMapView.getOverlays().clear();
-            mMapView.getOverlays().add(routeOverlay);
+            // 添加路线图层
+            mMapView.getOverlays().add(transitOverlay);
+            // 执行刷新使生效
             mMapView.refresh();
-            mMapView.getController().animateTo(busRoute.getStart());
+            // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
+            mMapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(),
+                    transitOverlay.getLonSpanE6());
+            // 移动地图到起点
+            mMapView.getController().animateTo(result.getStart().pt);
+
         }
 
         /**
