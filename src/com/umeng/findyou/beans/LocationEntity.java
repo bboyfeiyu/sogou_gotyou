@@ -20,6 +20,7 @@ public class LocationEntity {
 
     private GeoPoint mGeoPoint = null;
     private String mAddress = "";
+    private String mCity = "";
 
     /**
      * @Title: LocationEntity
@@ -75,6 +76,24 @@ public class LocationEntity {
      */
     public void setAddress(String addr) {
         this.mAddress = addr;
+    }
+
+    /**
+     * 获取 mCity
+     * 
+     * @return 返回 mCity
+     */
+    public String getCity() {
+        return mCity;
+    }
+
+    /**
+     * 设置 mCity
+     * 
+     * @param 对mCity进行赋值
+     */
+    public void setCity(String city) {
+        this.mCity = city;
     }
 
     /**

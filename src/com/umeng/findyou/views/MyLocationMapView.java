@@ -1,4 +1,3 @@
-
 package com.umeng.findyou.views;
 
 import android.content.Context;

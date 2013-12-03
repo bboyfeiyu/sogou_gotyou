@@ -1,7 +1,6 @@
 
 package com.umeng.findyou.beans;
 
-
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
  * @Title: NavgationConfig.java
@@ -11,7 +10,7 @@ package com.umeng.findyou.beans;
  * @version V1.0
  */
 
-public class NavigationConfig {
+public class NavConfig {
 
     private Vehicle mVehicle = Vehicle.BUS;
     private LocationEntity mStartEntity = null;
@@ -34,7 +33,7 @@ public class NavigationConfig {
      * @param start
      * @param dest
      */
-    public NavigationConfig() {
+    public NavConfig() {
 
     }
 
@@ -44,7 +43,7 @@ public class NavigationConfig {
      * @param start
      * @param dest
      */
-    public NavigationConfig(LocationEntity start, LocationEntity dest) {
+    public NavConfig(LocationEntity start, LocationEntity dest) {
         this(start, dest, Vehicle.BUS);
     }
 
@@ -55,7 +54,7 @@ public class NavigationConfig {
      * @param dest
      * @param vehicle
      */
-    public NavigationConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
+    public NavConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
         mStartEntity = start;
         mDestEntity = dest;
         mVehicle = vehicle;
@@ -95,6 +94,26 @@ public class NavigationConfig {
      */
     public void setDestEntity(LocationEntity destEntity) {
         this.mDestEntity = destEntity;
+    }
+
+    /**
+     * @Title: setVehicle
+     * @Description: 设置交通方式
+     * @param vehicle
+     * @throws
+     */
+    public void setVehicle(Vehicle vehicle) {
+        mVehicle = vehicle;
+    }
+
+    /**
+     * @Title: getVehicle
+     * @Description:
+     * @return
+     * @throws
+     */
+    public Vehicle getVehicle() {
+        return mVehicle;
     }
 
     /**
