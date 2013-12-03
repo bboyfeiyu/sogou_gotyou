@@ -36,6 +36,7 @@ import com.baidu.mapapi.search.MKAddrInfo;
 import com.baidu.mapapi.search.MKBusLineResult;
 import com.baidu.mapapi.search.MKDrivingRouteResult;
 import com.baidu.mapapi.search.MKPoiResult;
+import com.baidu.mapapi.search.MKRoute;
 import com.baidu.mapapi.search.MKSearchListener;
 import com.baidu.mapapi.search.MKShareUrlResult;
 import com.baidu.mapapi.search.MKSuggestionResult;
@@ -518,6 +519,18 @@ public class MainActivity extends Activity {
         @Override
         public void onGetTransitRouteResult(MKTransitRouteResult result, int error) {
             // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
+
+            if (error != 0 || result == null) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG).show();
+                return;
+            }
+            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView);
+            MKRoute busRoute = result.getPlan(0).getRoute(0);
+            routeOverlay.setData(busRoute);
+            mMapView.getOverlays().clear();
+            mMapView.getOverlays().add(routeOverlay);
+            mMapView.refresh();
+            mMapView.getController().animateTo(busRoute.getStart());
         }
 
         /**
