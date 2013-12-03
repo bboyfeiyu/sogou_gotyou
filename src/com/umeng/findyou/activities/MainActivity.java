@@ -425,7 +425,7 @@ public class MainActivity extends Activity {
 
     /**
      * @Title: buildAddress
-     * @Description: 
+     * @Description:
      * @return
      * @throws
      */
@@ -481,6 +481,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
+            // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
             // 显示路线
             RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView);
             routeOverlay.setData(result.getPlan(0).getRoute(0));
@@ -516,7 +517,7 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetTransitRouteResult(MKTransitRouteResult result, int error) {
-
+            // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
         }
 
         /**
