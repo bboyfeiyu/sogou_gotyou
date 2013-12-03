@@ -32,12 +32,14 @@ import com.baidu.mapapi.map.MapController;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
 import com.baidu.mapapi.map.OverlayItem;
+import com.baidu.mapapi.map.PoiOverlay;
 import com.baidu.mapapi.map.RouteOverlay;
 import com.baidu.mapapi.map.TransitOverlay;
 import com.baidu.mapapi.search.MKAddrInfo;
 import com.baidu.mapapi.search.MKBusLineResult;
 import com.baidu.mapapi.search.MKDrivingRouteResult;
 import com.baidu.mapapi.search.MKLine;
+import com.baidu.mapapi.search.MKPoiInfo;
 import com.baidu.mapapi.search.MKPoiResult;
 import com.baidu.mapapi.search.MKRoute;
 import com.baidu.mapapi.search.MKSearchListener;
@@ -580,6 +582,43 @@ public class MainActivity extends Activity {
         /**
          * (非 Javadoc)
          * 
+         * @Title: onGetPoiResult
+         * @Description: POI搜索
+         * @param res
+         * @param type
+         * @param error
+         * @see com.baidu.mapapi.search.MKSearchListener#onGetPoiResult(com.baidu.mapapi.search.MKPoiResult,
+         *      int, int)
+         */
+        @Override
+        public void onGetPoiResult(MKPoiResult res, int type, int error) {
+            // 错误号可参考MKEvent中的定义
+            if (error == MKEvent.ERROR_RESULT_NOT_FOUND) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG).show();
+                return;
+            }
+            else if (error != 0 || res == null) {
+                Toast.makeText(MainActivity.this, "搜索出错啦..", Toast.LENGTH_LONG).show();
+                return;
+            }
+            // 将poi结果显示到地图上
+            PoiOverlay poiOverlay = new PoiOverlay(MainActivity.this, mMapView);
+            poiOverlay.setData(res.getAllPoi());
+            mMapView.getOverlays().clear();
+            mMapView.getOverlays().add(poiOverlay);
+            mMapView.refresh();
+            // 当ePoiType为2（公交线路）或4（地铁线路）时，poi坐标为空
+            for (MKPoiInfo info : res.getAllPoi()) {
+                if (info.pt != null) {
+                    mMapView.getController().animateTo(info.pt);
+                    break;
+                }
+            }
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
          * @Title: onGetBusDetailResult
          * @Description: 公交车搜索
          * @param arg0
@@ -587,9 +626,18 @@ public class MainActivity extends Activity {
          * @see com.baidu.mapapi.search.MKSearchListener#onGetBusDetailResult(com.baidu.mapapi.search.MKBusLineResult,
          *      int)
          */
-        @Override
-        public void onGetBusDetailResult(MKBusLineResult arg0, int arg1) {
-
+        public void onGetBusDetailResult(MKBusLineResult result, int iError) {
+            if (iError != 0 || result == null) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 公交线路图层
+            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView); // 此处仅展示一个方案作为示例
+            routeOverlay.setData(result.getBusRoute());
+            mMapView.getOverlays().clear();
+            mMapView.getOverlays().add(routeOverlay);
+            mMapView.refresh();
+            mMapView.getController().animateTo(result.getBusRoute().getStart());
         }
 
         @Override
@@ -600,11 +648,6 @@ public class MainActivity extends Activity {
         @Override
         public void onGetShareUrlResult(MKShareUrlResult arg0, int arg1,
                 int arg2) {
-
-        }
-
-        @Override
-        public void onGetPoiResult(MKPoiResult arg0, int arg1, int arg2) {
 
         }
 

@@ -69,6 +69,7 @@ public class SearchUtil {
         // end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(),
         // destEntity
         // .getGeoPoint().getLongitudeE6());
+        // 模拟一个点
         end.pt = new GeoPoint(40057031, 116307852);
         // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
         mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
@@ -87,23 +88,39 @@ public class SearchUtil {
     }
 
     /**
+     * @Title: poiSearch
+     * @Description: POI搜索
+     * @param myGeoPoint
+     * @param keyword
+     * @throws
+     */
+    public static void poiSearch(GeoPoint myGeoPoint, String keyword) {
+        mMKSearch.poiSearchNearBy(keyword, myGeoPoint, 5000);
+
+    }
+
+    /**
      * @Title: drivingSearch
      * @Description:
      * @throws
      */
-    public static void drivingSearch(LocationEntity startEntity, LocationEntity destEntity) {
-        MKPlanNode start = new MKPlanNode();
-        start.pt = new GeoPoint(startEntity.getGeoPoint().getLatitudeE6(), startEntity
-                .getGeoPoint().getLongitudeE6());
-        MKPlanNode end = new MKPlanNode();
-        end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(), destEntity
-                .getGeoPoint().getLongitudeE6());
-        // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
-        mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
-        // 搜索
-        mMKSearch.drivingSearch(startEntity.getCity(), start, destEntity.getCity(), end);
-
-    }
+    // public static void drivingSearch(LocationEntity startEntity,
+    // LocationEntity destEntity) {
+    // MKPlanNode start = new MKPlanNode();
+    // start.pt = new GeoPoint(startEntity.getGeoPoint().getLatitudeE6(),
+    // startEntity
+    // .getGeoPoint().getLongitudeE6());
+    // MKPlanNode end = new MKPlanNode();
+    // end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(),
+    // destEntity
+    // .getGeoPoint().getLongitudeE6());
+    // // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
+    // mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
+    // // 搜索
+    // mMKSearch.drivingSearch(startEntity.getCity(), start,
+    // destEntity.getCity(), end);
+    //
+    // }
 
     /**
      * @Title: stringToGeoPoint
