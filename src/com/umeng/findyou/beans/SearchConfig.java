@@ -99,7 +99,6 @@ public class SearchConfig {
         this.mStartEntity = startEntity;
         mSearchEntity.setCity(mStartEntity.getCity());
         mSearchEntity.setGeoPoint(mStartEntity.getGeoPoint());
-        Log.d("", "#### start entity = " + mStartEntity.getGeoPoint().toString());
     }
 
     /**

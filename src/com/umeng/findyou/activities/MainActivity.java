@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -54,6 +56,7 @@ import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
+import com.umeng.findyou.adapter.RoutePlanAdapter;
 import com.umeng.findyou.beans.FriendOverlay;
 import com.umeng.findyou.beans.FriendOverlay.OnOverlayTapListener;
 import com.umeng.findyou.beans.LocationEntity;
@@ -61,6 +64,7 @@ import com.umeng.findyou.beans.SearchConfig;
 import com.umeng.findyou.beans.SearchConfig.SearchType;
 import com.umeng.findyou.dialog.NavigationDialog;
 import com.umeng.findyou.dialog.NavigationDialog.WhitchButton;
+import com.umeng.findyou.dialog.RoutePlanDialog;
 import com.umeng.findyou.shake.BaseSensor;
 import com.umeng.findyou.shake.BaseSensor.OnSensorListener;
 import com.umeng.findyou.shake.ShakeSensorImpl;
@@ -71,6 +75,7 @@ import com.umeng.findyou.utils.SearchUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName: MainActivity
@@ -472,10 +477,7 @@ public class MainActivity extends Activity {
                     mWaittingDialog.show();
                     // 路线搜索
                     if (config.getSearchType() == SearchType.ROUTE) {
-//                        SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
                         SearchUtil.routeSearch(config);
-                        Toast.makeText(getApplicationContext(), "路线搜索中,请稍侯...",
-                                Toast.LENGTH_SHORT).show();
                     } else if (config.getSearchType() == SearchType.BUS) {
                         Log.d(TAG, "#### 公交路线搜索");
                         SearchUtil.busSearch(config);
@@ -726,7 +728,7 @@ public class MainActivity extends Activity {
          *      int)
          */
         @Override
-        public void onGetTransitRouteResult(MKTransitRouteResult result, int error) {
+        public void onGetTransitRouteResult(final MKTransitRouteResult result, int error) {
             mWaittingDialog.dismiss();
             // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
 
@@ -748,40 +750,97 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // 路线层
-            TransitOverlay transitOverlay = new TransitOverlay(MainActivity.this, mMapView);
-            MKTransitRoutePlan routePlan = result.getPlan(1);
-            Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000 + " 千米");
-            Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
-            Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
-            Log.d(TAG, "### 描述: " + routePlan.getContent());
-
-            int lineNum = routePlan.getNumLines();
-            // 获取路线描述
-            for (int i = 0; i < routePlan.getNumRoute(); i++) {
-                MKRoute route = routePlan.getRoute(i);
-                Log.d(TAG, "### 步行 : " + route.getTip());
-                if (i < lineNum) {
-                    MKLine line = routePlan.getLine(i);
-                    Log.d(TAG, "### 乘车 : " + line.getTip());
-                }
+            
+            List<MKTransitRoutePlan> routePlans = new ArrayList<MKTransitRoutePlan>() ;
+            // 将路线添加到routePlans中
+            int totalRoutes = result.getNumPlan() ;
+            for (int i = 0; i < totalRoutes; i++) {
+                MKTransitRoutePlan routePlan = result.getPlan(i) ;
+                routePlans.add( routePlan ) ;
             }
+            //
+            RoutePlanAdapter routePlanAdapter = new RoutePlanAdapter(MainActivity.this, routePlans) ;
+            
+            //
+            final RoutePlanDialog routeDialog = new RoutePlanDialog(MainActivity.this) ;
+            // 设置listview适配器
+            routeDialog.setListViewAdapter(routePlanAdapter);
+            routeDialog.setOnItemClickListener(new OnItemClickListener() {
 
-            // 此处仅展示一个方案作为示例
-            transitOverlay.setData(routePlan);
-            // 清除其他图层
-            mMapView.getOverlays().clear();
-            // 添加路线图层
-            mMapView.getOverlays().add(transitOverlay);
-            mMapView.getOverlays().add(mMyLocationOverlay);
-            // 执行刷新使生效
-            mMapView.refresh();
-            // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
-            mMapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(),
-                    transitOverlay.getLonSpanE6());
-            // 移动地图到起点
-            mMapView.getController().animateTo(result.getStart().pt);
+                @Override
+                public void onItemClick(AdapterView<?> listview, View view, int position, long arg3) {
+                    // 路线层
+                    TransitOverlay transitOverlay = new TransitOverlay(MainActivity.this, mMapView);
+                    MKTransitRoutePlan routePlan = result.getPlan(position);
+                    Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000 + " 千米");
+                    Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
+                    Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
+                    Log.d(TAG, "### 描述: " + routePlan.getContent());
+
+                    int lineNum = routePlan.getNumLines();
+                    // 获取路线描述
+                    for (int i = 0; i < routePlan.getNumRoute(); i++) {
+                        MKRoute route = routePlan.getRoute(i);
+                        Log.d(TAG, "### 步行 : " + route.getTip());
+                        if (i < lineNum) {
+                            MKLine line = routePlan.getLine(i);
+                            Log.d(TAG, "### 乘车 : " + line.getTip());
+                        }
+                    }
+
+                    // 此处仅展示一个方案作为示例
+                    transitOverlay.setData(routePlan);
+                    // 清除其他图层
+                    mMapView.getOverlays().clear();
+                    // 添加路线图层
+                    mMapView.getOverlays().add(transitOverlay);
+                    mMapView.getOverlays().add(mMyLocationOverlay);
+                    // 执行刷新使生效
+                    mMapView.refresh();
+                    // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
+                    mMapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(),
+                            transitOverlay.getLonSpanE6());
+                    // 移动地图到起点
+                    mMapView.getController().animateTo(result.getStart().pt);
+                    routeDialog.dismiss();
+                }
+                
+            });
+            routeDialog.show();
+
+//            // 路线层
+//            TransitOverlay transitOverlay = new TransitOverlay(MainActivity.this, mMapView);
+//            MKTransitRoutePlan routePlan = result.getPlan(1);
+//            Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000 + " 千米");
+//            Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
+//            Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
+//            Log.d(TAG, "### 描述: " + routePlan.getContent());
+//
+//            int lineNum = routePlan.getNumLines();
+//            // 获取路线描述
+//            for (int i = 0; i < routePlan.getNumRoute(); i++) {
+//                MKRoute route = routePlan.getRoute(i);
+//                Log.d(TAG, "### 步行 : " + route.getTip());
+//                if (i < lineNum) {
+//                    MKLine line = routePlan.getLine(i);
+//                    Log.d(TAG, "### 乘车 : " + line.getTip());
+//                }
+//            }
+//
+//            // 此处仅展示一个方案作为示例
+//            transitOverlay.setData(routePlan);
+//            // 清除其他图层
+//            mMapView.getOverlays().clear();
+//            // 添加路线图层
+//            mMapView.getOverlays().add(transitOverlay);
+//            mMapView.getOverlays().add(mMyLocationOverlay);
+//            // 执行刷新使生效
+//            mMapView.refresh();
+//            // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
+//            mMapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(),
+//                    transitOverlay.getLonSpanE6());
+//            // 移动地图到起点
+//            mMapView.getController().animateTo(result.getStart().pt);
 
 
         }

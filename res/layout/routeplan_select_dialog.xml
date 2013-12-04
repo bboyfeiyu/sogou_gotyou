@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/layout_corner"
+    android:gravity="center" >
+
+    <TextView
+        android:id="@+id/route_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="@string/route_hint"
+        android:textColor="#000000"
+        android:textSize="15sp" >
+    </TextView>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:divider="#4B4B4B"
+        android:layout_below="@id/route_content"
+        android:background="?android:attr/listDivider" />
+
+    <ListView
+        android:id="@+id/route_listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/divider"
+        android:layout_margin="10dp"
+        android:background="#cccccc"
+        android:dividerHeight="1dp" >
+    </ListView>
+
+</RelativeLayout>
