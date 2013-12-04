@@ -11,8 +11,9 @@ import com.baidu.mapapi.search.MKSearch;
 import com.baidu.mapapi.search.MKSearchListener;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.beans.LocationEntity;
-import com.umeng.findyou.beans.NavConfig;
-import com.umeng.findyou.beans.NavConfig.Vehicle;
+import com.umeng.findyou.beans.SearchConfig;
+import com.umeng.findyou.beans.SearchConfig.Vehicle;
+import com.umeng.findyou.beans.SearchEntity;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -25,7 +26,8 @@ import com.umeng.findyou.beans.NavConfig.Vehicle;
 
 public class SearchUtil {
 
-    static MKSearch mMKSearch = new MKSearch();
+    private static MKSearch mMKSearch = new MKSearch();
+    private static SearchConfig mSearchConfig = null;
 
     /**
      * @Title: init
@@ -54,7 +56,7 @@ public class SearchUtil {
      * @Description:
      * @throws
      */
-    public static void routeSearch(NavConfig config, LocationEntity startEntity,
+    public static void routeSearch(SearchConfig config, LocationEntity startEntity,
             LocationEntity destEntity) {
         if (config == null || startEntity == null || destEntity == null) {
             return;
@@ -94,9 +96,36 @@ public class SearchUtil {
      * @param keyword
      * @throws
      */
-    public static void poiSearch(GeoPoint myGeoPoint, String keyword) {
-        mMKSearch.poiSearchNearBy(keyword, myGeoPoint, 5000);
+    public static void poiSearch(SearchConfig config) {
+        SearchEntity searchEntity = config.getSearchEntity();
+        // 获取中心点位置
+        GeoPoint geoPoint = new GeoPoint(searchEntity.getGeoPoint().getLatitudeE6(), searchEntity
+                .getGeoPoint().getLongitudeE6());
+        mSearchConfig = config;
+        mMKSearch.poiSearchNearBy(searchEntity.getKeyWord(), geoPoint, 5000);
+    }
 
+    /**
+     * @Title: busSearch
+     * @Description: 公交搜索, 需要通过POI搜索获取到uid
+     * @throws
+     */
+    public static void busSearch(SearchConfig config) {
+        mSearchConfig = config;
+        SearchEntity searchEntity = config.getSearchEntity();
+        Log.d("", "#### city = " + searchEntity.getCity() + ", bus = " + searchEntity.getKeyWord()) ;
+        mMKSearch.poiSearchInCity(searchEntity.getCity(), searchEntity.getKeyWord());
+    }
+
+    /**
+     * @Title: busSearch
+     * @Description: 公交搜索, 获取UID后再搜索
+     * @throws
+     */
+    public static void busLineSearch(String uid) {
+        SearchEntity searchEntity = mSearchConfig.getSearchEntity();
+        Log.d("", "####busLineSearch city = " + searchEntity.getCity() + ", bus = " + uid) ;
+        mMKSearch.busLineSearch(searchEntity.getCity(), uid);
     }
 
     /**

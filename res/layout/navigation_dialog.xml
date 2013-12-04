@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/layout_corner"
@@ -13,6 +14,7 @@
         android:layout_height="wrap_content"
         android:background="#cccccc"
         android:gravity="center"
+        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
 
         <ImageButton
@@ -54,6 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/vechcle_layout"
         android:layout_margin="5dp"
+        android:drawableLeft="@drawable/bullet_green"
         android:hint="@string/start_addr" />
 
     <EditText
@@ -62,29 +65,35 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/start_edit"
         android:layout_margin="5dp"
+        android:drawableLeft="@drawable/bullet_red"
         android:hint="@string/dest_addr" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/dest_edit"
-        android:layout_margin="5dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="5dp"
         android:background="#cccccc"
         android:gravity="center"
         android:orientation="horizontal" >
 
         <Button
             android:id="@+id/cancel_btn"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel_btn" />
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:background="@drawable/gray_button_style"
+            android:text="@string/cancel_btn"
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/nav_btn"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
             android:layout_marginLeft="30dp"
-            android:text="@string/ok_btn" />
+            android:background="@drawable/button_style"
+            android:text="@string/search"
+            android:textSize="15sp" />
     </LinearLayout>
 
 </RelativeLayout>

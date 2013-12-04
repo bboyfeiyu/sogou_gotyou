@@ -3,15 +3,19 @@ package com.umeng.findyou.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 import com.umeng.findyou.R;
-import com.umeng.findyou.beans.NavConfig;
-import com.umeng.findyou.beans.NavConfig.Vehicle;
+import com.umeng.findyou.beans.SearchConfig;
+import com.umeng.findyou.beans.SearchConfig.SearchType;
+import com.umeng.findyou.beans.SearchConfig.Vehicle;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -27,11 +31,11 @@ public class NavigationDialog extends Dialog {
     /**
      * 配置
      */
-    private NavConfig mConfig = null;
+    private SearchConfig mConfig = null;
     /**
      * 
      */
-    private Button mNavButton = null;
+    private Button mSearchButton = null;
     /**
      * 
      */
@@ -55,6 +59,8 @@ public class NavigationDialog extends Dialog {
     private OnClickListener mClickListener = null;
     private EditText mStartEditText = null;
     private EditText mDestEditText = null;
+
+    private LinearLayout mVehicleLayout = null;
 
     /**
      * @Title: NavgationDialog
@@ -114,12 +120,13 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mNavButton = (Button) findViewById(R.id.nav_btn);
-        mNavButton.setOnClickListener(new View.OnClickListener() {
+        mSearchButton = (Button) findViewById(R.id.nav_btn);
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (mClickListener != null) {
+                    configChange();
                     mClickListener.onClick(WhitchButton.OK, mConfig);
                 }
                 dismiss();
@@ -141,6 +148,8 @@ public class NavigationDialog extends Dialog {
         mStartEditText = (EditText) findViewById(R.id.start_edit);
         mDestEditText = (EditText) findViewById(R.id.dest_edit);
 
+        mVehicleLayout = (LinearLayout) findViewById(R.id.vechcle_layout);
+
     }
 
     /**
@@ -152,8 +161,37 @@ public class NavigationDialog extends Dialog {
      */
     @Override
     public void show() {
-        initAddress();
+        initViews();
         super.show();
+    }
+
+    /**
+     * @Title: initViews
+     * @Description:
+     * @throws
+     */
+    private void initViews() {
+        SearchType type = mConfig.getSearchType();
+        if (type == SearchType.BUS) { // 公交搜索
+            mVehicleLayout.setVisibility(View.GONE);
+            mStartEditText.setHint("城市");
+            mDestEditText.setHint("公交路线");
+            String city = mConfig.getStartEntity().getCity();
+            if (!TextUtils.isEmpty(city)) {
+                mStartEditText.setText(city);
+            }
+
+            layoutChange(type);
+        } else if (type == SearchType.POI) { // 周报搜索
+            mVehicleLayout.setVisibility(View.GONE);
+            mStartEditText.setVisibility(View.GONE);
+            mDestEditText.setHint("关键字");
+            // 修改布局
+            layoutChange(type);
+
+        } else { // 路线搜索
+            initAddress();
+        }
     }
 
     /**
@@ -173,6 +211,58 @@ public class NavigationDialog extends Dialog {
             }
             mStartEditText.setText(startAddr);
             mDestEditText.setText(destAddr);
+        }
+    }
+
+    /**
+     * @Title: configChange
+     * @Description: 修改搜索配置
+     * @throws
+     */
+    private void configChange() {
+        if (mConfig.getSearchType() == SearchType.BUS) {
+            String city = mStartEditText.getText().toString().trim();
+            String line = mDestEditText.getText().toString().trim();
+            mConfig.getSearchEntity().setCity(city);
+            mConfig.getSearchEntity().setKeyWord(line);
+        } else if (mConfig.getSearchType() == SearchType.POI) {
+            String keyword = mDestEditText.getText().toString().trim();
+            mConfig.getSearchEntity().setKeyWord(keyword);
+        }
+    }
+
+    /**
+     * @Title: layoutChange
+     * @Description: 动态修改布局
+     * @throws
+     */
+    private void layoutChange(SearchType type) {
+        if (type == SearchType.BUS) {
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
+            params.setMargins(10, 30, 10, 10);
+            params.width = LayoutParams.MATCH_PARENT;
+            params.height = LayoutParams.WRAP_CONTENT;
+            mStartEditText.setLayoutParams(params);
+
+            RelativeLayout.LayoutParams destDarams = new RelativeLayout.LayoutParams(
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
+            destDarams.setMargins(10, 10, 10, 10);
+            destDarams.width = LayoutParams.MATCH_PARENT;
+            destDarams.height = LayoutParams.WRAP_CONTENT;
+            destDarams.addRule(RelativeLayout.BELOW, mStartEditText.getId());
+            mDestEditText.setLayoutParams(destDarams);
+        } else if (type == SearchType.POI) {
+            // 设置参数
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
+            params.setMargins(10, 30, 10, 10);
+            params.width = LayoutParams.MATCH_PARENT;
+            params.height = LayoutParams.WRAP_CONTENT;
+            mDestEditText.setLayoutParams(params);
         }
     }
 
@@ -214,7 +304,7 @@ public class NavigationDialog extends Dialog {
      * 
      * @return 返回 mConfig
      */
-    public NavConfig getConfig() {
+    public SearchConfig getConfig() {
         return mConfig;
     }
 
@@ -223,7 +313,7 @@ public class NavigationDialog extends Dialog {
      * 
      * @param 对mConfig进行赋值
      */
-    public void setConfig(NavConfig config) {
+    public void setConfig(SearchConfig config) {
         this.mConfig = config;
     }
 
@@ -270,7 +360,7 @@ public class NavigationDialog extends Dialog {
          * @param config
          * @throws
          */
-        public void onClick(WhitchButton button, NavConfig config);
+        public void onClick(WhitchButton button, SearchConfig config);
     }
 
 }

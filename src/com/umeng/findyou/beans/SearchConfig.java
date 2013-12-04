@@ -1,6 +1,8 @@
 
 package com.umeng.findyou.beans;
 
+import android.util.Log;
+
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
  * @Title: NavgationConfig.java
@@ -10,11 +12,31 @@ package com.umeng.findyou.beans;
  * @version V1.0
  */
 
-public class NavConfig {
+public class SearchConfig {
 
+    /**
+     * 路线搜索
+     */
+    private SearchType mSearchType = SearchType.ROUTE;
     private Vehicle mVehicle = Vehicle.BUS;
     private LocationEntity mStartEntity = null;
     private LocationEntity mDestEntity = null;
+
+    /**
+     * 搜索的配置类
+     */
+    private SearchEntity mSearchEntity = new SearchEntity();
+
+    /**
+     * @ClassName: SearchType
+     * @Description: 搜索类型
+     * @author Honghui He
+     */
+    public enum SearchType {
+        ROUTE,
+        BUS,
+        POI
+    }
 
     /**
      * @ClassName: Vehicle
@@ -33,8 +55,7 @@ public class NavConfig {
      * @param start
      * @param dest
      */
-    public NavConfig() {
-
+    public SearchConfig() {
     }
 
     /**
@@ -43,7 +64,7 @@ public class NavConfig {
      * @param start
      * @param dest
      */
-    public NavConfig(LocationEntity start, LocationEntity dest) {
+    public SearchConfig(LocationEntity start, LocationEntity dest) {
         this(start, dest, Vehicle.BUS);
     }
 
@@ -54,7 +75,7 @@ public class NavConfig {
      * @param dest
      * @param vehicle
      */
-    public NavConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
+    public SearchConfig(LocationEntity start, LocationEntity dest, Vehicle vehicle) {
         mStartEntity = start;
         mDestEntity = dest;
         mVehicle = vehicle;
@@ -76,6 +97,9 @@ public class NavConfig {
      */
     public void setStartEntity(LocationEntity startEntity) {
         this.mStartEntity = startEntity;
+        mSearchEntity.setCity(mStartEntity.getCity());
+        mSearchEntity.setGeoPoint(mStartEntity.getGeoPoint());
+        Log.d("", "#### start entity = " + mStartEntity.getGeoPoint().toString());
     }
 
     /**
@@ -94,6 +118,42 @@ public class NavConfig {
      */
     public void setDestEntity(LocationEntity destEntity) {
         this.mDestEntity = destEntity;
+    }
+
+    /**
+     * 获取 mSearchType
+     * 
+     * @return 返回 mSearchType
+     */
+    public SearchType getSearchType() {
+        return mSearchType;
+    }
+
+    /**
+     * 设置 mSearchType
+     * 
+     * @param 对mSearchType进行赋值
+     */
+    public void setSearchType(SearchType type) {
+        this.mSearchType = type;
+    }
+
+    /**
+     * 获取 mSearchEntity
+     * 
+     * @return 返回 mSearchEntity
+     */
+    public SearchEntity getSearchEntity() {
+        return mSearchEntity;
+    }
+
+    /**
+     * 设置 mSearchEntity
+     * 
+     * @param 对mSearchEntity进行赋值
+     */
+    public void setSearchEntity(SearchEntity entity) {
+        this.mSearchEntity = entity;
     }
 
     /**

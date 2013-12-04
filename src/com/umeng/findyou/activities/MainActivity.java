@@ -15,9 +15,11 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,12 +51,14 @@ import com.baidu.mapapi.search.MKSuggestionResult;
 import com.baidu.mapapi.search.MKTransitRoutePlan;
 import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.FriendOverlay;
 import com.umeng.findyou.beans.FriendOverlay.OnOverlayTapListener;
 import com.umeng.findyou.beans.LocationEntity;
-import com.umeng.findyou.beans.NavConfig;
+import com.umeng.findyou.beans.SearchConfig;
+import com.umeng.findyou.beans.SearchConfig.SearchType;
 import com.umeng.findyou.dialog.NavigationDialog;
 import com.umeng.findyou.dialog.NavigationDialog.WhitchButton;
 import com.umeng.findyou.shake.BaseSensor;
@@ -66,40 +70,79 @@ import com.umeng.findyou.utils.Constants;
 import com.umeng.findyou.utils.SearchUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
+import java.util.ArrayList;
+
 /**
  * @ClassName: MainActivity
- * @Description:
+ * @Description: 应用名: 搜索输入法插件 - FindYou 概 述: 包含定位功能、路径导航、公交搜索、周边搜索。 描述:
+ *               1、当用户进入程序，则自动定位到用户的位置。用户点击“发送”按钮则可以将描述我的位置的文字返回给输入法。
+ *               2、例如用户的好友将自己的位置发给了本机用户， 本机用户拷贝好友的位置信息后，进入插件
+ *               (从粘贴板里读取位置数据)，此时会在地图上显示好友的位置，
+ *               点击好友位置图标就可以获取到好友的乘车路线，也可以将乘车信息返回给输入法。 
+ *               3、用戶可以查詢公交信息，輸入城市名、公交路线即可搜索到相关信息 . 例如611、10号线等。
+ *               4、周边搜索，用户可以搜索周边的兴趣点， 例如ATM、医院、银行、景点等等。
+ * @email bboyfeiyu@gmail.com
  * @author Honghui He
  */
 public class MainActivity extends Activity {
 
+    /**
+     * 百度地图管理器
+     */
     private BMapManager mBMapMan = null;
-    // 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
-    // 如果不处理touch事件，则无需继承，直接使用MapView即可
-    private MyLocationMapView mMapView = null; // 地图View
+
+    /**
+     * 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
+     * 如果不处理touch事件，则无需继承，直接使用MapView即可
+     */
+    private MyLocationMapView mMapView = null;
+    /**
+     * 地图控制器
+     */
     private MapController mMapController = null;
 
-    // 定位相关
+    /**
+     * 定位client
+     */
     private LocationClient mLocClient;
-    private LocationData locData = null;
-    public LocationListenner myListener = new LocationListenner();
+    /**
+     * 我的位置的数据
+     */
+    private LocationData mMyLocationData = null;
+    /**
+     * 定位监听器
+     */
+    public LocationListenner mLocationListenner = new LocationListenner();
 
     // 定位图层
-    private LocationOverlay myLocationOverlay = null;
+    private LocationOverlay mMyLocationOverlay = null;
 
+    /**
+     * 我的位置
+     */
     private GeoPoint mGeoPoint = new GeoPoint(0, 0);
-    // 我的位置entity
+    /**
+     * 我的位置entity
+     */
     private LocationEntity mMyLocationEntity = new LocationEntity();
+    /**
+     * 好友位置 entity
+     */
     private LocationEntity mFriendEntity = new LocationEntity();
-    private boolean isLocationOnitialized = false;
-    // 摇一摇对象
+    /**
+     * 是否是第一次获取我的位置
+     */
+    private boolean isFirstTime = false;
+    /**
+     * 摇一摇对象
+     */
     private BaseSensor mShakeSensor = null;
-    // 声明一个振动器对象
+    /**
+     * 声明一个振动器对象
+     */
     private Vibrator mVibrator = null;
 
-    private static final String TAG = MainActivity.class.getName();
-
-    private TextView mLocationTv = null;
+    private TextView mLocationTextView = null;
     private ProgressBar mProgressBar = null;
     private Button mSendButton = null;
 
@@ -109,6 +152,13 @@ public class MainActivity extends Activity {
     private Button mLocButton = null;
     private Button mBusButton = null;
     private Button mPoiButton = null;
+
+    /**
+     * 最下面的几个按钮布局， 在获取到我的位置后再显示
+     */
+    private LinearLayout mButtonLayout = null;
+
+    private static final String TAG = MainActivity.class.getName();
 
     /**
      * (非 Javadoc)
@@ -132,8 +182,8 @@ public class MainActivity extends Activity {
         // 定位初始化
         mLocClient = new LocationClient(this);
         mLocClient.setAK(Constants.BAIDU_MAP_KEY);
-        locData = new LocationData();
-        mLocClient.registerLocationListener(myListener);
+        mMyLocationData = new LocationData();
+        mLocClient.registerLocationListener(mLocationListenner);
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true);// 打开gps
         option.setCoorType("bd09ll"); // 设置坐标类型
@@ -145,14 +195,14 @@ public class MainActivity extends Activity {
         checkClipboardText();
 
         // 定位图层初始化
-        myLocationOverlay = new LocationOverlay(mMapView);
-        myLocationOverlay.setMarker(getResources().getDrawable(
+        mMyLocationOverlay = new LocationOverlay(mMapView);
+        mMyLocationOverlay.setMarker(getResources().getDrawable(
                 R.drawable.location));
-        // 设置定位数据
-        myLocationOverlay.setData(locData);
+        // 更新定位数据
+        mMyLocationOverlay.setData(mMyLocationData);
         // 添加定位图层
-        mMapView.getOverlays().add(myLocationOverlay);
-        myLocationOverlay.enableCompass();
+        mMapView.getOverlays().add(mMyLocationOverlay);
+        mMyLocationOverlay.enableCompass();
         // 修改定位数据后刷新图层生效
         mMapView.refresh();
 
@@ -175,7 +225,7 @@ public class MainActivity extends Activity {
         mMapView.getController().enableClick(true);
         mMapView.setBuiltInZoomControls(false);
 
-        mLocationTv = (TextView) findViewById(R.id.location_addr_tv);
+        mLocationTextView = (TextView) findViewById(R.id.location_addr_tv);
 
         mProgressBar = (ProgressBar) findViewById(R.id.locate_prgb);
 
@@ -229,6 +279,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
+                mLocClient.requestLocation();
                 animToMyLocation();
             }
         });
@@ -240,6 +291,11 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "公交查询",
                         Toast.LENGTH_SHORT).show();
+                // 设置配置文件， 并且显示dialog
+                SearchConfig config = new SearchConfig();
+                config.setStartEntity(mMyLocationEntity);
+                config.setSearchType(SearchType.BUS);
+                showSearchDialog(config);
             }
         });
 
@@ -250,8 +306,15 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "POI搜索",
                         Toast.LENGTH_SHORT).show();
+                // 设置配置文件， 并且显示dialog
+                SearchConfig config = new SearchConfig();
+                config.setStartEntity(mMyLocationEntity);
+                config.setSearchType(SearchType.POI);
+                showSearchDialog(config);
             }
         });
+
+        mButtonLayout = (LinearLayout) findViewById(R.id.button_layout);
     }
 
     /**
@@ -334,28 +397,10 @@ public class MainActivity extends Activity {
                 /**
                  * 导航配置
                  */
-                NavConfig navConfig = new NavConfig();
+                SearchConfig navConfig = new SearchConfig();
                 navConfig.setStartEntity(mMyLocationEntity);
                 navConfig.setDestEntity(mFriendEntity);
-
-                NavigationDialog dialog = new NavigationDialog(
-                        MainActivity.this, R.style.dialog_style);
-                dialog.getWindow()
-                        .setWindowAnimations(R.style.dialogWindowAnim);
-                dialog.setCanceledOnTouchOutside(true);
-                dialog.setConfig(navConfig);
-                dialog.setOnClickListener(new NavigationDialog.OnClickListener() {
-
-                    @Override
-                    public void onClick(WhitchButton button, NavConfig config) {
-                        if (button == WhitchButton.OK) {
-                            SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
-                            Toast.makeText(getApplicationContext(), "路线搜索中,请稍侯...",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                dialog.show();
+                showSearchDialog(navConfig);
             }
         });
         friendOverlay.addItem(friendItem);
@@ -370,7 +415,7 @@ public class MainActivity extends Activity {
      * @throws
      */
     private void sendMessageToSogou() {
-        String addr = mLocationTv.getText().toString().trim();
+        String addr = mLocationTextView.getText().toString().trim();
         if (TextUtils.isEmpty(addr)) {
             return;
         }
@@ -397,64 +442,56 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * @Title: animToMyLocation
+     * @Title: showSearchDialog
      * @Description:
+     * @param config
+     * @throws
+     */
+    private void showSearchDialog(SearchConfig config) {
+        /**
+         * 导航配置
+         */
+        SearchConfig navConfig = new SearchConfig();
+        navConfig.setStartEntity(mMyLocationEntity);
+        navConfig.setDestEntity(mFriendEntity);
+
+        NavigationDialog dialog = new NavigationDialog(
+                MainActivity.this, R.style.dialog_style);
+        dialog.getWindow()
+                .setWindowAnimations(R.style.dialogWindowAnim);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setConfig(config);
+        dialog.setOnClickListener(new NavigationDialog.OnClickListener() {
+
+            @Override
+            public void onClick(WhitchButton button, SearchConfig config) {
+                if (button == WhitchButton.OK) {
+                    // 路线搜索
+                    if (config.getSearchType() == SearchType.ROUTE) {
+                        SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
+                        Toast.makeText(getApplicationContext(), "路线搜索中,请稍侯...",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (config.getSearchType() == SearchType.BUS) {
+                        Log.d(TAG, "#### 公交路线搜索");
+                        SearchUtil.busSearch(config);
+                    } else {
+                        Log.d(TAG, "#### POI搜索");
+                        SearchUtil.poiSearch(config);
+                    }
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    /**
+     * @Title: animToMyLocation
+     * @Description: 移动到我的位置
      * @throws
      */
     private void animToMyLocation() {
         if (mMapController != null) {
             mMapController.animateTo(mGeoPoint);
-        }
-    }
-
-    /**
-     * 定位SDK监听函数
-     */
-    public class LocationListenner implements BDLocationListener {
-
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            if (location == null) {
-                return;
-            }
-
-            locData.latitude = location.getLatitude();
-            locData.longitude = location.getLongitude();
-            // 如果不显示定位精度圈，将accuracy赋值为0即可
-            locData.accuracy = location.getRadius();
-            // 此处可以设置 locData的方向信息, 如果定位 SDK 未返回方向信息，用户可以自己实现罗盘功能添加方向信息。
-            locData.direction = location.getDerect();
-            // 更新定位数据
-            myLocationOverlay.setData(locData);
-            // 更新图层数据执行刷新后生效
-            mMapView.refresh();
-
-            // 计算位置
-            int latitude = (int) (locData.latitude * 1E6);
-            int lontitude = (int) (locData.longitude * 1E6);
-            mGeoPoint.setLatitudeE6(latitude);
-            mGeoPoint.setLongitudeE6(lontitude);
-            // 第一次移动到我的位置
-            if (!isLocationOnitialized) {
-                animToMyLocation();
-            }
-            // 解析地址
-            SearchUtil.locationToAddress(mGeoPoint);
-            isLocationOnitialized = true;
-        }
-
-        /**
-         * (非 Javadoc)
-         * 
-         * @Title: onReceivePoi
-         * @Description: POI搜索的结果
-         * @param poiLocation
-         * @see com.baidu.location.BDLocationListener#onReceivePoi(com.baidu.location.BDLocation)
-         */
-        public void onReceivePoi(BDLocation poiLocation) {
-            if (poiLocation == null) {
-                return;
-            }
         }
     }
 
@@ -509,7 +546,62 @@ public class MainActivity extends Activity {
      */
     private String buildAddress(MKAddrInfo addr) {
         return addr.strAddr + "  " + Constants.ADDR_FLAG + " ("
-                + locData.latitude + "," + locData.longitude + ")";
+                + mMyLocationData.latitude + "," + mMyLocationData.longitude + ")";
+    }
+
+    /**
+     * 定位SDK监听函数
+     */
+    public class LocationListenner implements BDLocationListener {
+
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            if (location == null) {
+                return;
+            }
+
+            mMyLocationData.latitude = location.getLatitude();
+            mMyLocationData.longitude = location.getLongitude();
+            // 如果不显示定位精度圈，将accuracy赋值为0即可
+            mMyLocationData.accuracy = location.getRadius();
+            // 此处可以设置 locData的方向信息, 如果定位 SDK 未返回方向信息，用户可以自己实现罗盘功能添加方向信息。
+            mMyLocationData.direction = location.getDerect();
+            // 更新定位数据
+            mMyLocationOverlay.setData(mMyLocationData);
+            // 更新图层数据执行刷新后生效
+            mMapView.refresh();
+
+            // 计算位置
+            int latitude = (int) (mMyLocationData.latitude * 1E6);
+            int lontitude = (int) (mMyLocationData.longitude * 1E6);
+            mGeoPoint.setLatitudeE6(latitude);
+            mGeoPoint.setLongitudeE6(lontitude);
+            // 第一次移动到我的位置
+            if (!isFirstTime) {
+                animToMyLocation();
+                mButtonLayout.setVisibility(View.VISIBLE);
+                mButtonLayout.startAnimation(AnimationUtils.loadAnimation(MainActivity.this,
+                        R.anim.button_layout_enter_anim));
+
+            }
+            // 解析地址
+            SearchUtil.locationToAddress(mGeoPoint);
+            isFirstTime = true;
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onReceivePoi
+         * @Description: POI搜索的结果
+         * @param poiLocation
+         * @see com.baidu.location.BDLocationListener#onReceivePoi(com.baidu.location.BDLocation)
+         */
+        public void onReceivePoi(BDLocation poiLocation) {
+            if (poiLocation == null) {
+                return;
+            }
+        }
     }
 
     /**
@@ -537,7 +629,7 @@ public class MainActivity extends Activity {
             mMyLocationEntity.setGeoPoint(addr.geoPt);
             if (myAddr.contains(Constants.ADDR_FLAG)) {
                 mProgressBar.setVisibility(View.GONE);
-                mLocationTv.setText(myAddr);
+                mLocationTextView.setText(myAddr);
                 mSendButton.setVisibility(View.VISIBLE);
             }
         }
@@ -580,7 +672,39 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetWalkingRouteResult(MKWalkingRouteResult result, int error) {
+            // 起点或终点有歧义，需要选择具体的城市列表或地址列表
+            if (error == MKEvent.ERROR_ROUTE_ADDR) {
+                // 遍历所有地址
+                // ArrayList<MKPoiInfo> stPois =
+                // res.getAddrResult().mStartPoiList;
+                // ArrayList<MKPoiInfo> enPois =
+                // res.getAddrResult().mEndPoiList;
+                // ArrayList<MKCityListInfo> stCities =
+                // res.getAddrResult().mStartCityList;
+                // ArrayList<MKCityListInfo> enCities =
+                // res.getAddrResult().mEndCityList;
+                return;
+            }
+            if (error != 0 || result == null) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView);
+            // 此处仅展示一个方案作为示例
+            routeOverlay.setData(result.getPlan(0).getRoute(0));
+            // 清除其他图层
+            mMapView.getOverlays().clear();
+            // 添加路线图层
+            mMapView.getOverlays().add(routeOverlay);
+            mMapView.getOverlays().add(mMyLocationOverlay);
+            // 执行刷新使生效
+            mMapView.refresh();
+            // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
+            mMapView.getController().zoomToSpan(routeOverlay.getLatSpanE6(),
+                    routeOverlay.getLonSpanE6());
+            // 移动地图到起点
+            mMapView.getController().animateTo(result.getStart().pt);
         }
 
         /**
@@ -640,6 +764,7 @@ public class MainActivity extends Activity {
             mMapView.getOverlays().clear();
             // 添加路线图层
             mMapView.getOverlays().add(transitOverlay);
+            mMapView.getOverlays().add(mMyLocationOverlay);
             // 执行刷新使生效
             mMapView.refresh();
             // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
@@ -672,26 +797,49 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, "搜索出错啦..", Toast.LENGTH_LONG).show();
                 return;
             }
+
+            /**
+             * 公交路线搜索, 找到公交路线poi node poi类型，0：普通点，1：公交站，2：公交线路，3：地铁站，4：地铁线路
+             */
+            MKPoiInfo curPoi = null;
+            boolean isBuslineSearch = false;
+            int totalPoiNum = res.getNumPois();
+            for (int idx = 0; idx < totalPoiNum; idx++) {
+                curPoi = res.getPoi(idx);
+                if (2 == curPoi.ePoiType || 4 == curPoi.ePoiType) {
+                    isBuslineSearch = true;
+                    break;
+                }
+            }
+            // 公交搜索
+            if (isBuslineSearch) {
+                Log.d(TAG, "### 原始 UID = " + curPoi.uid);
+                SearchUtil.busLineSearch(curPoi.uid);
+                return;
+            }
+
             // 将poi结果显示到地图上
             PoiOverlay poiOverlay = new PoiOverlay(MainActivity.this, mMapView);
             poiOverlay.setData(res.getAllPoi());
             mMapView.getOverlays().clear();
+            mMapView.getOverlays().add(mMyLocationOverlay);
             mMapView.getOverlays().add(poiOverlay);
             mMapView.refresh();
-            // 当ePoiType为2（公交线路）或4（地铁线路）时，poi坐标为空
+            // 当ePoiType为2（公交线路）或4（地铁线路）时， poi坐标为空
             for (MKPoiInfo info : res.getAllPoi()) {
                 if (info.pt != null) {
                     mMapView.getController().animateTo(info.pt);
                     break;
                 }
             }
+
         }
 
         /**
          * (非 Javadoc)
          * 
          * @Title: onGetBusDetailResult
-         * @Description: 公交车搜索
+         * @Description: 公交车搜索, 获得公交线路以后找到里用户最近的位置， 并且提供导航。
          * @param arg0
          * @param arg1
          * @see com.baidu.mapapi.search.MKSearchListener#onGetBusDetailResult(com.baidu.mapapi.search.MKBusLineResult,
@@ -699,16 +847,33 @@ public class MainActivity extends Activity {
          */
         public void onGetBusDetailResult(MKBusLineResult result, int iError) {
             if (iError != 0 || result == null) {
-                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "抱歉，该路线公交车未找到", Toast.LENGTH_SHORT).show();
                 return;
             }
             // 公交线路图层
             RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this, mMapView); // 此处仅展示一个方案作为示例
-            routeOverlay.setData(result.getBusRoute());
+            MKRoute busRoute = result.getBusRoute();
+            String name = result.getBusName();
+            Log.d(TAG, "#### 公交车 : " + name);
+            routeOverlay.setData(busRoute);
             mMapView.getOverlays().clear();
             mMapView.getOverlays().add(routeOverlay);
+            mMapView.getOverlays().add(mMyLocationOverlay);
             mMapView.refresh();
             mMapView.getController().animateTo(result.getBusRoute().getStart());
+
+            // 获取所有的路线, 计算两点的距离              DistanceUtil.getDistance(arg0, arg1) ;
+            ArrayList<ArrayList<GeoPoint>> allPoints = busRoute.getArrayPoints() ;
+            for (ArrayList<GeoPoint> arrayList : allPoints) {
+                
+            }
+            
+            busRoute.getTip() ;
+            // 获取每一步的文字描述
+            int totalStep = busRoute.getNumSteps();
+            for (int i = 0; i < totalStep; i++) {
+                Log.d(TAG, "#### bus step : " + busRoute.getStep(i).getContent());
+            }
         }
 
         @Override
