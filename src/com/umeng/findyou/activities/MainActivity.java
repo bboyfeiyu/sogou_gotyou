@@ -1,7 +1,6 @@
 
 package com.umeng.findyou.activities;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Service;
@@ -126,7 +125,7 @@ public class MainActivity extends Activity {
         mBMapMan = new BMapManager(getApplication());
         mBMapMan.init(Constants.BAIDU_MAP_KEY, null);
 
-        setContentView(R.layout.main_mapview_activity);
+        setContentView(R.layout.main_activity);
 
         initViews();
 
@@ -539,7 +538,7 @@ public class MainActivity extends Activity {
             if (myAddr.contains(Constants.ADDR_FLAG)) {
                 mProgressBar.setVisibility(View.GONE);
                 mLocationTv.setText(myAddr);
-                mSendButton.setEnabled(true);
+                mSendButton.setVisibility(View.VISIBLE);
             }
         }
 
