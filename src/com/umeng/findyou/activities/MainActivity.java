@@ -1,6 +1,7 @@
 
 package com.umeng.findyou.activities;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Service;
@@ -17,6 +18,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -102,6 +104,13 @@ public class MainActivity extends Activity {
     private ProgressBar mProgressBar = null;
     private Button mSendButton = null;
 
+    private ImageButton mZoomOutBtn = null;
+    private ImageButton mZoomInBtn = null;
+
+    private Button mLocButton = null;
+    private Button mBusButton = null;
+    private Button mPoiButton = null;
+
     /**
      * (非 Javadoc)
      * 
@@ -165,7 +174,7 @@ public class MainActivity extends Activity {
         mMapController = mMapView.getController();
         mMapView.getController().setZoom(15);
         mMapView.getController().enableClick(true);
-        mMapView.setBuiltInZoomControls(true);
+        mMapView.setBuiltInZoomControls(false);
 
         mLocationTv = (TextView) findViewById(R.id.location_addr_tv);
 
@@ -179,6 +188,69 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 // 将内容发送到搜狗
                 sendMessageToSogou();
+            }
+        });
+
+        mZoomOutBtn = (ImageButton) findViewById(R.id.zoom_out_btn);
+        mZoomOutBtn.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // 确认缩放级别
+                int zoomLevel = (int) mMapView.getZoomLevel();
+                if (zoomLevel == mMapView.getMaxZoomLevel()) {
+                    mZoomOutBtn.setEnabled(false);
+                    Toast.makeText(MainActivity.this, "已经是最大缩放级别", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mMapController.zoomIn();
+                mZoomInBtn.setEnabled(true);
+            }
+        });
+
+        mZoomInBtn = (ImageButton) findViewById(R.id.zoom_in_btn);
+        mZoomInBtn.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                int zoomLevel = (int) mMapView.getZoomLevel();
+                if (zoomLevel == mMapView.getMinZoomLevel()) {
+                    mZoomInBtn.setEnabled(false);
+                    Toast.makeText(MainActivity.this, "已经是最小缩放级别", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                mMapController.zoomOut();
+                mZoomOutBtn.setEnabled(true);
+            }
+        });
+
+        mLocButton = (Button) findViewById(R.id.my_location_btn);
+        mLocButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                animToMyLocation();
+            }
+        });
+
+        mBusButton = (Button) findViewById(R.id.bus_btn);
+        mBusButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "公交查询",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mPoiButton = (Button) findViewById(R.id.poi_btn);
+        mPoiButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "POI搜索",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -394,7 +466,7 @@ public class MainActivity extends Activity {
      */
     private void showAddrDialog() {
         LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-        View addrView = inflater.inflate(R.layout.address_dialog, null);
+        View addrView = inflater.inflate(R.layout.my_location_dialog, null);
         // 提示框
         final Dialog alertDialog = new Dialog(MainActivity.this,
                 R.style.dialog_style);

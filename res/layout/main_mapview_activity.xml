@@ -48,6 +48,31 @@
             android:textSize="15sp" />
     </LinearLayout>
 
+    <!-- 缩放按钮 -->
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/layout_corner" >
+
+        <ImageButton
+            android:id="@+id/zoom_out_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/zoom_out_button_style"
+            android:contentDescription="@string/app_name" />
+
+        <ImageButton
+            android:id="@+id/zoom_in_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_below="@id/zoom_out_btn"
+            android:background="@drawable/zoom_in_button_style"
+            android:contentDescription="@string/app_name" />
+    </RelativeLayout>
     <!-- 下面的图标 -->
 
     <LinearLayout
@@ -58,34 +83,31 @@
         android:background="@drawable/layout_corner"
         android:orientation="horizontal" >
 
-        <ImageButton
+        <Button
             android:id="@+id/my_location_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:contentDescription="@string/app_name"
-            android:enabled="false"
-            android:text="@string/send"
+            android:text="@string/location"
             android:textSize="15sp" />
 
-        <ImageButton
+        <Button
             android:id="@+id/bus_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:contentDescription="@string/app_name"
-            android:enabled="false"
-            android:text="@string/send"
+            android:text="@string/bus"
             android:textSize="15sp" />
 
-        <ImageButton
+        <Button
             android:id="@+id/poi_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:contentDescription="@string/app_name"
-            android:enabled="false"
-            android:text="@string/send"
+            android:text="@string/poi"
             android:textSize="15sp" />
     </LinearLayout>
 

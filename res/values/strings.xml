@@ -14,5 +14,7 @@
     <string name="dest_addr">终点</string>
     <string name="send">发送</string>
     <string name="locating">定位中&#8230;</string>
+    <string name="bus">公交查询</string>
+    <string name="poi">周边</string>
 
 </resources>
