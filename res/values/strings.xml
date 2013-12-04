@@ -17,5 +17,6 @@
     <string name="bus">公交查询</string>
     <string name="poi">周边</string>
     <string name="search">搜索</string>
+    <string name="route">路线搜索</string>
 
 </resources>

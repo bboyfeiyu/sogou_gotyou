@@ -56,35 +56,50 @@ public class SearchUtil {
      * @Description:
      * @throws
      */
-    public static void routeSearch(SearchConfig config, LocationEntity startEntity,
-            LocationEntity destEntity) {
-        if (config == null || startEntity == null || destEntity == null) {
+    public static void routeSearch(SearchConfig config) {
+        if (config == null) {
             return;
         }
 
-        MKPlanNode start = new MKPlanNode();
+        // 起点
+        LocationEntity startEntity = config.getStartEntity();
         GeoPoint myGeoPoint = startEntity.getGeoPoint();
+        MKPlanNode startNode = new MKPlanNode();
         if (myGeoPoint != null) {
-            start.pt = new GeoPoint(myGeoPoint.getLatitudeE6(), myGeoPoint.getLongitudeE6());
+            startNode.pt = new GeoPoint(myGeoPoint.getLatitudeE6(), myGeoPoint.getLongitudeE6());
+        } else {
+            startNode.name = startEntity.getAddress();
         }
-        MKPlanNode end = new MKPlanNode();
+
         // end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(),
         // destEntity
         // .getGeoPoint().getLongitudeE6());
         // 模拟一个点
-        end.pt = new GeoPoint(40057031, 116307852);
+        // end.pt = new GeoPoint(40057031, 116307852);
+        // 目的地
+        LocationEntity destEntity = config.getDestEntity();
+        MKPlanNode endNode = new MKPlanNode();
+        GeoPoint destGeoPoint = destEntity.getGeoPoint();
+        if (destGeoPoint != null) {
+            endNode.pt = destGeoPoint;
+        } else {
+            endNode.name = destEntity.getAddress();
+        }
         // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
         mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
         if (config.getVehicle() == Vehicle.CAR) {
             // 搜索
-            mMKSearch.drivingSearch(startEntity.getCity(), start, destEntity.getCity(), end);
+            mMKSearch
+                    .drivingSearch(startEntity.getCity(), startNode, destEntity.getCity(), endNode);
             Log.d("", "### 驾车搜索");
         } else if (config.getVehicle() == Vehicle.BUS) {
-            Log.d("", "### 公交搜索, city = " + startEntity.getCity() + ", start = " + start
-                    + ", end = " + end);
-            mMKSearch.transitSearch(startEntity.getCity(), start, end);
+            Log.d("", "### 公交搜索, city = " + startEntity.getCity() + ", start = " + startNode
+                    + ", end = " + endNode);
+            mMKSearch.transitSearch(startEntity.getCity(), startNode, endNode);
         } else if (config.getVehicle() == Vehicle.WALK) {
-            mMKSearch.walkingSearch(startEntity.getCity(), start, destEntity.getCity(), end);
+            Log.d("", "### 步行搜索");
+            mMKSearch
+                    .walkingSearch(startEntity.getCity(), startNode, destEntity.getCity(), endNode);
         }
 
     }
@@ -113,7 +128,7 @@ public class SearchUtil {
     public static void busSearch(SearchConfig config) {
         mSearchConfig = config;
         SearchEntity searchEntity = config.getSearchEntity();
-        Log.d("", "#### city = " + searchEntity.getCity() + ", bus = " + searchEntity.getKeyWord()) ;
+        Log.d("", "#### city = " + searchEntity.getCity() + ", bus = " + searchEntity.getKeyWord());
         mMKSearch.poiSearchInCity(searchEntity.getCity(), searchEntity.getKeyWord());
     }
 
@@ -124,32 +139,9 @@ public class SearchUtil {
      */
     public static void busLineSearch(String uid) {
         SearchEntity searchEntity = mSearchConfig.getSearchEntity();
-        Log.d("", "####busLineSearch city = " + searchEntity.getCity() + ", bus = " + uid) ;
+        Log.d("", "####busLineSearch city = " + searchEntity.getCity() + ", bus = " + uid);
         mMKSearch.busLineSearch(searchEntity.getCity(), uid);
     }
-
-    /**
-     * @Title: drivingSearch
-     * @Description:
-     * @throws
-     */
-    // public static void drivingSearch(LocationEntity startEntity,
-    // LocationEntity destEntity) {
-    // MKPlanNode start = new MKPlanNode();
-    // start.pt = new GeoPoint(startEntity.getGeoPoint().getLatitudeE6(),
-    // startEntity
-    // .getGeoPoint().getLongitudeE6());
-    // MKPlanNode end = new MKPlanNode();
-    // end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(),
-    // destEntity
-    // .getGeoPoint().getLongitudeE6());
-    // // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
-    // mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
-    // // 搜索
-    // mMKSearch.drivingSearch(startEntity.getCity(), start,
-    // destEntity.getCity(), end);
-    //
-    // }
 
     /**
      * @Title: stringToGeoPoint

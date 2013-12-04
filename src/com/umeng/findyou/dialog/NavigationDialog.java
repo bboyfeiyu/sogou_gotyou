@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
 import com.umeng.findyou.R;
+import com.umeng.findyou.beans.LocationEntity;
 import com.umeng.findyou.beans.SearchConfig;
 import com.umeng.findyou.beans.SearchConfig.SearchType;
 import com.umeng.findyou.beans.SearchConfig.Vehicle;
@@ -201,16 +202,24 @@ public class NavigationDialog extends Dialog {
      */
     private void initAddress() {
         if (mConfig != null) {
-            String startAddr = mConfig.getStartEntity().getAddress();
-            if (startAddr.contains("#")) {
-                startAddr = startAddr.split("#")[0].trim();
+            LocationEntity startEntity = mConfig.getStartEntity();
+            if (startEntity != null) {
+                String startAddr = startEntity.getAddress();
+                if (startAddr.contains("#")) {
+                    startAddr = startAddr.split("#")[0].trim();
+                }
+
+                mStartEditText.setText(startAddr);
             }
-            String destAddr = mConfig.getDestEntity().getAddress();
-            if (destAddr.contains("#")) {
-                destAddr = destAddr.split("#")[0].trim();
+
+            LocationEntity destEntity = mConfig.getDestEntity();
+            if (destEntity != null) {
+                String destAddr = destEntity.getAddress();
+                if (destAddr.contains("#")) {
+                    destAddr = destAddr.split("#")[0].trim();
+                }
+                mDestEditText.setText(destAddr);
             }
-            mStartEditText.setText(startAddr);
-            mDestEditText.setText(destAddr);
         }
     }
 

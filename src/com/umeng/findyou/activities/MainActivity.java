@@ -3,6 +3,7 @@ package com.umeng.findyou.activities;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -51,7 +52,6 @@ import com.baidu.mapapi.search.MKSuggestionResult;
 import com.baidu.mapapi.search.MKTransitRoutePlan;
 import com.baidu.mapapi.search.MKTransitRouteResult;
 import com.baidu.mapapi.search.MKWalkingRouteResult;
-import com.baidu.mapapi.utils.DistanceUtil;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.FriendOverlay;
@@ -78,7 +78,7 @@ import java.util.ArrayList;
  *               1、当用户进入程序，则自动定位到用户的位置。用户点击“发送”按钮则可以将描述我的位置的文字返回给输入法。
  *               2、例如用户的好友将自己的位置发给了本机用户， 本机用户拷贝好友的位置信息后，进入插件
  *               (从粘贴板里读取位置数据)，此时会在地图上显示好友的位置，
- *               点击好友位置图标就可以获取到好友的乘车路线，也可以将乘车信息返回给输入法。 
+ *               点击好友位置图标就可以获取到好友的乘车路线，也可以将乘车信息返回给输入法。
  *               3、用戶可以查詢公交信息，輸入城市名、公交路线即可搜索到相关信息 . 例如611、10号线等。
  *               4、周边搜索，用户可以搜索周边的兴趣点， 例如ATM、医院、银行、景点等等。
  * @email bboyfeiyu@gmail.com
@@ -150,6 +150,7 @@ public class MainActivity extends Activity {
     private ImageButton mZoomInBtn = null;
 
     private Button mLocButton = null;
+    private Button mRouteButton = null;
     private Button mBusButton = null;
     private Button mPoiButton = null;
 
@@ -158,6 +159,10 @@ public class MainActivity extends Activity {
      */
     private LinearLayout mButtonLayout = null;
 
+    /**
+     * Waitting Dialog
+     */
+    private ProgressDialog mWaittingDialog = null;
     private static final String TAG = MainActivity.class.getName();
 
     /**
@@ -208,6 +213,9 @@ public class MainActivity extends Activity {
 
         // 初始化搜索
         SearchUtil.init(mBMapMan, mSearchListener);
+
+        mWaittingDialog = new ProgressDialog(MainActivity.this);
+        mWaittingDialog.setMessage("搜索中,请稍侯...");
     }
 
     /**
@@ -284,13 +292,25 @@ public class MainActivity extends Activity {
             }
         });
 
+        mRouteButton = (Button) findViewById(R.id.route_btn);
+        mRouteButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // 设置配置文件， 并且显示dialog
+                SearchConfig config = new SearchConfig();
+                config.setStartEntity(mMyLocationEntity);
+                config.setDestEntity(mFriendEntity);
+                showSearchDialog(config);
+            }
+        });
+
+        
         mBusButton = (Button) findViewById(R.id.bus_btn);
         mBusButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "公交查询",
-                        Toast.LENGTH_SHORT).show();
                 // 设置配置文件， 并且显示dialog
                 SearchConfig config = new SearchConfig();
                 config.setStartEntity(mMyLocationEntity);
@@ -304,8 +324,6 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "POI搜索",
-                        Toast.LENGTH_SHORT).show();
                 // 设置配置文件， 并且显示dialog
                 SearchConfig config = new SearchConfig();
                 config.setStartEntity(mMyLocationEntity);
@@ -466,9 +484,11 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(WhitchButton button, SearchConfig config) {
                 if (button == WhitchButton.OK) {
+                    mWaittingDialog.show();
                     // 路线搜索
                     if (config.getSearchType() == SearchType.ROUTE) {
-                        SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
+//                        SearchUtil.routeSearch(config, mMyLocationEntity, mMyLocationEntity);
+                        SearchUtil.routeSearch(config);
                         Toast.makeText(getApplicationContext(), "路线搜索中,请稍侯...",
                                 Toast.LENGTH_SHORT).show();
                     } else if (config.getSearchType() == SearchType.BUS) {
@@ -621,7 +641,7 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetAddrResult(MKAddrInfo addr, int code) {
-
+            mWaittingDialog.dismiss();
             String myAddr = buildAddress(addr);
             mMyLocationEntity.setCity(addr.addressComponents.city);
             // 构建地址
@@ -646,6 +666,7 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetDrivingRouteResult(MKDrivingRouteResult result, int error) {
+            mWaittingDialog.dismiss();
             if (result == null || error != 0) {
                 Log.d(TAG, "### 搜索失败 ");
                 return;
@@ -672,6 +693,7 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetWalkingRouteResult(MKWalkingRouteResult result, int error) {
+            mWaittingDialog.dismiss();
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
                 // 遍历所有地址
@@ -705,6 +727,7 @@ public class MainActivity extends Activity {
                     routeOverlay.getLonSpanE6());
             // 移动地图到起点
             mMapView.getController().animateTo(result.getStart().pt);
+            mWaittingDialog.dismiss();
         }
 
         /**
@@ -719,10 +742,12 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetTransitRouteResult(MKTransitRouteResult result, int error) {
+            mWaittingDialog.dismiss();
             // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
 
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
+                Toast.makeText(MainActivity.this, "ERROR_ROUTE_ADDR", Toast.LENGTH_SHORT).show();
                 // 遍历所有地址
                 // ArrayList<MKPoiInfo> stPois =
                 // res.getAddrResult().mStartPoiList;
@@ -773,6 +798,7 @@ public class MainActivity extends Activity {
             // 移动地图到起点
             mMapView.getController().animateTo(result.getStart().pt);
 
+
         }
 
         /**
@@ -788,6 +814,7 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onGetPoiResult(MKPoiResult res, int type, int error) {
+            mWaittingDialog.dismiss();
             // 错误号可参考MKEvent中的定义
             if (error == MKEvent.ERROR_RESULT_NOT_FOUND) {
                 Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG).show();
@@ -806,7 +833,8 @@ public class MainActivity extends Activity {
             int totalPoiNum = res.getNumPois();
             for (int idx = 0; idx < totalPoiNum; idx++) {
                 curPoi = res.getPoi(idx);
-                if (2 == curPoi.ePoiType || 4 == curPoi.ePoiType) {
+                if (curPoi != null
+                        && (2 == curPoi.ePoiType || 4 == curPoi.ePoiType)) {
                     isBuslineSearch = true;
                     break;
                 }
@@ -846,6 +874,7 @@ public class MainActivity extends Activity {
          *      int)
          */
         public void onGetBusDetailResult(MKBusLineResult result, int iError) {
+            mWaittingDialog.dismiss();
             if (iError != 0 || result == null) {
                 Toast.makeText(MainActivity.this, "抱歉，该路线公交车未找到", Toast.LENGTH_SHORT).show();
                 return;
@@ -862,18 +891,21 @@ public class MainActivity extends Activity {
             mMapView.refresh();
             mMapView.getController().animateTo(result.getBusRoute().getStart());
 
-            // 获取所有的路线, 计算两点的距离              DistanceUtil.getDistance(arg0, arg1) ;
-            ArrayList<ArrayList<GeoPoint>> allPoints = busRoute.getArrayPoints() ;
-            for (ArrayList<GeoPoint> arrayList : allPoints) {
-                
+            // 获取所有的路线, 计算两点的距离 DistanceUtil.getDistance(arg0, arg1) ;
+            ArrayList<ArrayList<GeoPoint>> allPoints = busRoute.getArrayPoints();
+            for (ArrayList<GeoPoint> subArrayList : allPoints) {
+                for (GeoPoint geoPoint : subArrayList) {
+                    Log.d(TAG, "##### point = " + geoPoint);
+                }
             }
-            
-            busRoute.getTip() ;
+
+            busRoute.getTip();
             // 获取每一步的文字描述
             int totalStep = busRoute.getNumSteps();
             for (int i = 0; i < totalStep; i++) {
                 Log.d(TAG, "#### bus step : " + busRoute.getStep(i).getContent());
             }
+            mWaittingDialog.dismiss();
         }
 
         @Override
