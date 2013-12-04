@@ -9,6 +9,5 @@
 	<classpathentry kind="lib" path="libs/locSDK_4.0.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="src" path="/Guide"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
