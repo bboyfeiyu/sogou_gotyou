@@ -150,7 +150,6 @@ public class MainActivity extends Activity {
     private ImageButton mZoomInBtn = null;
 
     private Button mLocButton = null;
-    private Button mRouteButton = null;
     private Button mBusButton = null;
     private Button mPoiButton = null;
 
@@ -291,21 +290,7 @@ public class MainActivity extends Activity {
                 animToMyLocation();
             }
         });
-
-        mRouteButton = (Button) findViewById(R.id.route_btn);
-        mRouteButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // 设置配置文件， 并且显示dialog
-                SearchConfig config = new SearchConfig();
-                config.setStartEntity(mMyLocationEntity);
-                config.setDestEntity(mFriendEntity);
-                showSearchDialog(config);
-            }
-        });
-
-        
+       
         mBusButton = (Button) findViewById(R.id.bus_btn);
         mBusButton.setOnClickListener(new OnClickListener() {
 

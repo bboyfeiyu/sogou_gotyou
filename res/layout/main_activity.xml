@@ -101,15 +101,6 @@
             android:textSize="15sp" />
 
         <Button
-            android:id="@+id/route_btn"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:contentDescription="@string/app_name"
-            android:text="@string/route"
-            android:textSize="15sp" />
-
-        <Button
             android:id="@+id/bus_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"

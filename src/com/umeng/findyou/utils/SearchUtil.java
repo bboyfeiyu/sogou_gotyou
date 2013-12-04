@@ -82,6 +82,8 @@ public class SearchUtil {
         GeoPoint destGeoPoint = destEntity.getGeoPoint();
         if (destGeoPoint != null) {
             endNode.pt = destGeoPoint;
+            Log.d("", "### 模拟终点地址 ######");
+            endNode.pt = new GeoPoint(40057031, 116307852);
         } else {
             endNode.name = destEntity.getAddress();
         }
