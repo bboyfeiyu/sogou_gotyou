@@ -8,6 +8,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
@@ -146,14 +148,6 @@ public class MainActivity extends Activity {
      * 声明一个振动器对象
      */
     private Vibrator mVibrator = null;
-    /**
-     * 最上端的我的位置的布局
-     */
-    // private LinearLayout mMyLocationLayout = null;
-    //
-    // private TextView mLocationTextView = null;
-    // private ProgressBar mProgressBar = null;
-    // private Button mSendButton = null;
 
     private ImageButton mZoomOutBtn = null;
     private ImageButton mZoomInBtn = null;
@@ -182,6 +176,13 @@ public class MainActivity extends Activity {
      */
     private ProgressDialog mWaittingDialog = null;
     private static final String TAG = MainActivity.class.getName();
+
+    /**
+     * 15 s 超时
+     */
+    private final int TIME_OUT = 15000;
+
+    private final int WHAT_MSG = 123;
 
     /**
      * (非 Javadoc)
@@ -251,21 +252,6 @@ public class MainActivity extends Activity {
         mMapView.getController().setZoom(18.0f);
         mMapView.getController().enableClick(true);
         mMapView.setBuiltInZoomControls(false);
-
-        // mLocationTextView = (TextView) findViewById(R.id.location_addr_tv);
-        //
-        // mProgressBar = (ProgressBar) findViewById(R.id.locate_prgb);
-        //
-        // //
-        // mSendButton = (Button) findViewById(R.id.send_btn);
-        // mSendButton.setOnClickListener(new OnClickListener() {
-        //
-        // @Override
-        // public void onClick(View v) {
-        // // 将内容发送到搜狗
-        // sendMessageToSogou();
-        // }
-        // });
 
         mZoomOutBtn = (ImageButton) findViewById(R.id.zoom_out_btn);
         mZoomOutBtn.setOnClickListener(new OnClickListener() {
@@ -338,9 +324,6 @@ public class MainActivity extends Activity {
                 showSearchDialog(config);
             }
         });
-
-        // mMyLocationLayout = (LinearLayout)
-        // findViewById(R.id.my_location_layout);
 
         mRouteDetailLayout = (LinearLayout) findViewById(R.id.route_detail_layout);
         mSummarylTextView = (TextView) findViewById(R.id.summary_tv);
@@ -444,6 +427,8 @@ public class MainActivity extends Activity {
                 mFriendEntity.setGeoPoint(geoPoint);
                 mFriendEntity.setAddress(addr);
                 addFriendToMap();
+                Toast.makeText(MainActivity.this, "好友图标已添加到地图上, 请缩放地图以便查看", Toast.LENGTH_LONG)
+                        .show();
             }
         }
     }
@@ -485,24 +470,6 @@ public class MainActivity extends Activity {
      * @Description: 将数据发送给搜狗输入法
      * @throws
      */
-    // private void sendMessageToSogou() {
-    // String addr = mLocationTextView.getText().toString().trim();
-    // if (TextUtils.isEmpty(addr)) {
-    // return;
-    // }
-    // Intent intent = new Intent();
-    // Bundle bundle = new Bundle();
-    // bundle.putString(SogouEntryActivity.APP_RESULT_CONTENT_TAG, addr);
-    // intent.putExtras(bundle);
-    // setResult(Activity.RESULT_OK, intent);
-    // finish();
-    // }
-
-    /**
-     * @Title: sendMessageToSogou
-     * @Description: 将数据发送给搜狗输入法
-     * @throws
-     */
     private void sendMessageToSogou(String addr) {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
@@ -510,6 +477,31 @@ public class MainActivity extends Activity {
         intent.putExtras(bundle);
         setResult(Activity.RESULT_OK, intent);
         finish();
+    }
+
+    /**
+     * 
+     */
+    private Handler mTimeOutHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+
+            if (mWaittingDialog != null && mWaittingDialog.isShowing()) {
+                mWaittingDialog.dismiss();
+                Toast.makeText(MainActivity.this, "请求超时, 请检查您的网络...", Toast.LENGTH_SHORT).show();
+            }
+
+        };
+    };
+
+    /**
+     * @Title: postMessage
+     * @Description:
+     * @throws
+     */
+    private void postMessage() {
+        Message msg = Message.obtain(mTimeOutHandler);
+        msg.what = WHAT_MSG;
+        mTimeOutHandler.sendMessageDelayed(msg, TIME_OUT);
     }
 
     /**
@@ -539,23 +531,30 @@ public class MainActivity extends Activity {
                     // 路线搜索
                     if (config.getSearchType() == SearchType.ROUTE) {
                         mWaittingDialog.show();
+                        postMessage();
                         SearchUtil.routeSearch(MainActivity.this, config);
                     } else if (config.getSearchType() == SearchType.BUS) {
                         Log.d(TAG, "#### 公交路线搜索");
-                        if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
+                        if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())
+                                || config.getSearchEntity().getGeoPoint() != null) {
                             mWaittingDialog.show();
+                            postMessage();
                             SearchUtil.busSearch(MainActivity.this, config);
                         } else {
-                            Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "关键字为空或者还没有获取到您的位置",
+                                    Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
                         Log.d(TAG, "#### POI搜索");
-                        if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
+                        if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())
+                                || config.getSearchEntity().getGeoPoint() != null) {
                             mWaittingDialog.show();
+                            postMessage();
                             SearchUtil.poiSearch(MainActivity.this, config);
                         } else {
-                            Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "关键字为空或者还没有获取到您的位置",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -732,11 +731,7 @@ public class MainActivity extends Activity {
             // 构建地址
             mMyLocationEntity.setAddress(myAddr);
             mMyLocationEntity.setGeoPoint(addr.geoPt);
-            if (myAddr.contains(Constants.ADDR_FLAG)) {
-                // mProgressBar.setVisibility(View.GONE);
-                // mLocationTextView.setText(myAddr);
-                // mSendButton.setVisibility(View.VISIBLE);
-            }
+
         }
 
         /**
@@ -753,6 +748,7 @@ public class MainActivity extends Activity {
         public void onGetDrivingRouteResult(MKDrivingRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
+            mTimeOutHandler.removeMessages(WHAT_MSG);
             if (result == null || error != 0) {
                 Log.d(TAG, "### 搜索失败 ");
                 return;
@@ -768,6 +764,7 @@ public class MainActivity extends Activity {
             mMapView.refresh();
             setRouteData("驾车", route);
             Log.d(TAG, "### 搜索结果 : " + result.toString());
+            mTimeOutHandler.removeMessages(WHAT_MSG);
         }
 
         /**
@@ -784,6 +781,7 @@ public class MainActivity extends Activity {
         public void onGetWalkingRouteResult(MKWalkingRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
+            mTimeOutHandler.removeMessages(WHAT_MSG);
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
                 // 遍历所有地址
@@ -839,7 +837,7 @@ public class MainActivity extends Activity {
         public void onGetTransitRouteResult(final MKTransitRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
-
+            mTimeOutHandler.removeMessages(WHAT_MSG);
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
                 Toast.makeText(MainActivity.this, "ERROR_ROUTE_ADDR",
@@ -984,6 +982,7 @@ public class MainActivity extends Activity {
         @Override
         public void onGetPoiResult(MKPoiResult res, int type, int error) {
             mWaittingDialog.dismiss();
+            mTimeOutHandler.removeMessages(WHAT_MSG);
             // 错误号可参考MKEvent中的定义
             if (error == MKEvent.ERROR_RESULT_NOT_FOUND) {
                 Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG)
@@ -1047,6 +1046,7 @@ public class MainActivity extends Activity {
          */
         public void onGetBusDetailResult(MKBusLineResult result, int iError) {
             mWaittingDialog.dismiss();
+            mTimeOutHandler.removeMessages(WHAT_MSG);
             if (iError != 0 || result == null) {
                 Toast.makeText(MainActivity.this, "抱歉，该路线公交车未找到",
                         Toast.LENGTH_SHORT).show();
@@ -1157,6 +1157,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         mShakeSensor.unregister();
+        mTimeOutHandler.removeMessages(WHAT_MSG);
         super.onStop();
     }
 
