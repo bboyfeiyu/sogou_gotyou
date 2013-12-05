@@ -90,9 +90,6 @@ public class RoutePlanAdapter extends BaseAdapter {
         }
         String text = mRoutePlans.get(position).getContent();
         mViewHolder.mTextView.setText(text);
-        if (position == 0 || position == (getCount() - 1)) {
-            mViewHolder.mImageView.setImageResource(R.drawable.bullet_green);
-        }
         return convertView;
     }
 
