@@ -530,6 +530,8 @@ public class MainActivity extends Activity {
                         if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
                             mWaittingDialog.show();
                             SearchUtil.busSearch(MainActivity.this, config);
+                        }else { 
+                            Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
@@ -537,6 +539,8 @@ public class MainActivity extends Activity {
                         if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
                             mWaittingDialog.show();
                             SearchUtil.poiSearch(MainActivity.this, config);
+                        } else { 
+                            Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
