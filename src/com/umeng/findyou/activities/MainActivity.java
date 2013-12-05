@@ -361,7 +361,7 @@ public class MainActivity extends Activity {
                     public void onClick(View v) {
                         routeDetailDialog.dismiss();
                         // 将mRouteData中的字符串格式化后返回给输入法
-                        sendMessageToSogou("这是我的路线");
+                        sendMessageToSogou(format(mRouteData));
                     }
                 });
                 routeDetailDialog.setCanceledOnTouchOutside(true);
@@ -371,6 +371,21 @@ public class MainActivity extends Activity {
 
         // 最下面的布局， 我的位置、公交查询等等
         mButtonLayout = (LinearLayout) findViewById(R.id.button_layout);
+    }
+
+    /**
+     * @Title: format
+     * @Description:
+     * @param routeData
+     * @throws
+     */
+    private String format(List<String> routeData) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String string : routeData) {
+            stringBuilder.append(string).append(",");
+        }
+        stringBuilder.append(".");
+        return stringBuilder.toString();
     }
 
     /**
@@ -530,7 +545,7 @@ public class MainActivity extends Activity {
                         if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
                             mWaittingDialog.show();
                             SearchUtil.busSearch(MainActivity.this, config);
-                        }else { 
+                        } else {
                             Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
                         }
 
@@ -539,7 +554,7 @@ public class MainActivity extends Activity {
                         if (!TextUtils.isEmpty(config.getSearchEntity().getKeyWord())) {
                             mWaittingDialog.show();
                             SearchUtil.poiSearch(MainActivity.this, config);
-                        } else { 
+                        } else {
                             Toast.makeText(MainActivity.this, "关键字为空", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -743,7 +758,6 @@ public class MainActivity extends Activity {
                 return;
             }
             Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
-            // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
             // 显示路线
             RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this,
                     mMapView);
@@ -825,7 +839,6 @@ public class MainActivity extends Activity {
         public void onGetTransitRouteResult(final MKTransitRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
-            // // TODO : 这里弹出一个路线选择Dialog, 使得用户可以选择路线
 
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
