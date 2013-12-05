@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -147,10 +146,14 @@ public class MainActivity extends Activity {
      * 声明一个振动器对象
      */
     private Vibrator mVibrator = null;
-
-    private TextView mLocationTextView = null;
-    private ProgressBar mProgressBar = null;
-    private Button mSendButton = null;
+    /**
+     * 最上端的我的位置的布局
+     */
+    // private LinearLayout mMyLocationLayout = null;
+    //
+    // private TextView mLocationTextView = null;
+    // private ProgressBar mProgressBar = null;
+    // private Button mSendButton = null;
 
     private ImageButton mZoomOutBtn = null;
     private ImageButton mZoomInBtn = null;
@@ -163,11 +166,6 @@ public class MainActivity extends Activity {
      * 最下面的几个按钮布局， 在获取到我的位置后再显示
      */
     private LinearLayout mButtonLayout = null;
-
-    /**
-     * 
-     */
-    private LinearLayout mMyLocationLayout = null;
 
     /**
      * 最上面的路线详情布局
@@ -236,6 +234,7 @@ public class MainActivity extends Activity {
 
         mWaittingDialog = new ProgressDialog(MainActivity.this);
         mWaittingDialog.setMessage("搜索中,请稍侯...");
+        mWaittingDialog.show();
     }
 
     /**
@@ -249,24 +248,24 @@ public class MainActivity extends Activity {
         // 地图初始化
         mMapView = (MyLocationMapView) findViewById(R.id.baidu_mapView);
         mMapController = mMapView.getController();
-        mMapView.getController().setZoom(15);
+        mMapView.getController().setZoom(18.0f);
         mMapView.getController().enableClick(true);
         mMapView.setBuiltInZoomControls(false);
 
-        mLocationTextView = (TextView) findViewById(R.id.location_addr_tv);
-
-        mProgressBar = (ProgressBar) findViewById(R.id.locate_prgb);
-
+        // mLocationTextView = (TextView) findViewById(R.id.location_addr_tv);
         //
-        mSendButton = (Button) findViewById(R.id.send_btn);
-        mSendButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // 将内容发送到搜狗
-                sendMessageToSogou();
-            }
-        });
+        // mProgressBar = (ProgressBar) findViewById(R.id.locate_prgb);
+        //
+        // //
+        // mSendButton = (Button) findViewById(R.id.send_btn);
+        // mSendButton.setOnClickListener(new OnClickListener() {
+        //
+        // @Override
+        // public void onClick(View v) {
+        // // 将内容发送到搜狗
+        // sendMessageToSogou();
+        // }
+        // });
 
         mZoomOutBtn = (ImageButton) findViewById(R.id.zoom_out_btn);
         mZoomOutBtn.setOnClickListener(new OnClickListener() {
@@ -340,7 +339,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        mMyLocationLayout = (LinearLayout) findViewById(R.id.my_location_layout);
+        // mMyLocationLayout = (LinearLayout)
+        // findViewById(R.id.my_location_layout);
 
         mRouteDetailLayout = (LinearLayout) findViewById(R.id.route_detail_layout);
         mSummarylTextView = (TextView) findViewById(R.id.summary_tv);
@@ -470,18 +470,18 @@ public class MainActivity extends Activity {
      * @Description: 将数据发送给搜狗输入法
      * @throws
      */
-    private void sendMessageToSogou() {
-        String addr = mLocationTextView.getText().toString().trim();
-        if (TextUtils.isEmpty(addr)) {
-            return;
-        }
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putString(SogouEntryActivity.APP_RESULT_CONTENT_TAG, addr);
-        intent.putExtras(bundle);
-        setResult(Activity.RESULT_OK, intent);
-        finish();
-    }
+    // private void sendMessageToSogou() {
+    // String addr = mLocationTextView.getText().toString().trim();
+    // if (TextUtils.isEmpty(addr)) {
+    // return;
+    // }
+    // Intent intent = new Intent();
+    // Bundle bundle = new Bundle();
+    // bundle.putString(SogouEntryActivity.APP_RESULT_CONTENT_TAG, addr);
+    // intent.putExtras(bundle);
+    // setResult(Activity.RESULT_OK, intent);
+    // finish();
+    // }
 
     /**
      * @Title: sendMessageToSogou
@@ -647,6 +647,7 @@ public class MainActivity extends Activity {
             // 第一次移动到我的位置
             if (!isFirstTime) {
                 animToMyLocation();
+                mWaittingDialog.dismiss();
                 mButtonLayout.setVisibility(View.VISIBLE);
                 mButtonLayout.startAnimation(AnimationUtils.loadAnimation(
                         MainActivity.this, R.anim.button_layout_enter_anim));
@@ -679,7 +680,7 @@ public class MainActivity extends Activity {
      * @throws
      */
     private void setRouteData(String desc, MKRoute route) {
-        mMyLocationLayout.setVisibility(View.GONE);
+        // mMyLocationLayout.setVisibility(View.GONE);
         mRouteDetailLayout.setVisibility(View.VISIBLE);
         mRouteData.clear();
         for (int i = 0; i < route.getNumSteps(); i++) {
@@ -713,9 +714,9 @@ public class MainActivity extends Activity {
             mMyLocationEntity.setAddress(myAddr);
             mMyLocationEntity.setGeoPoint(addr.geoPt);
             if (myAddr.contains(Constants.ADDR_FLAG)) {
-                mProgressBar.setVisibility(View.GONE);
-                mLocationTextView.setText(myAddr);
-                mSendButton.setVisibility(View.VISIBLE);
+                // mProgressBar.setVisibility(View.GONE);
+                // mLocationTextView.setText(myAddr);
+                // mSendButton.setVisibility(View.VISIBLE);
             }
         }
 
@@ -908,7 +909,7 @@ public class MainActivity extends Activity {
                     // 移动地图到起点
                     mMapView.getController().animateTo(result.getStart().pt);
                     routeDialog.dismiss();
-                    mMyLocationLayout.setVisibility(View.GONE);
+                    // mMyLocationLayout.setVisibility(View.GONE);
                     mRouteDetailLayout.setVisibility(View.VISIBLE);
                 }
 

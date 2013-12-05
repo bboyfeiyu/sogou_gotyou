@@ -17,7 +17,7 @@ public class ClipboardUtil {
 
     /**
      * @Title: getContent
-     * @Description:
+     * @Description: 获取剪切板中的内容
      * @param context
      * @return
      * @throws
@@ -25,7 +25,7 @@ public class ClipboardUtil {
     public static String getContent(Context context) {
         ClipboardManager cbm = (ClipboardManager) context
                 .getSystemService(Context.CLIPBOARD_SERVICE);
-        return cbm.getText().toString().trim();
+        return cbm == null ? null : cbm.getText().toString().trim();
     }
 
 }
