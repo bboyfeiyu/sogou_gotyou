@@ -3,6 +3,7 @@ package com.umeng.findyou.utils;
 
 import android.content.Context;
 import android.text.ClipboardManager;
+import android.text.TextUtils;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -23,9 +24,16 @@ public class ClipboardUtil {
      * @throws
      */
     public static String getContent(Context context) {
+        if (context == null) {
+            return "";
+        }
         ClipboardManager cbm = (ClipboardManager) context
                 .getSystemService(Context.CLIPBOARD_SERVICE);
-        return cbm == null ? null : cbm.getText().toString().trim();
+        String text = "";
+        if ( cbm != null && !TextUtils.isEmpty( cbm.getText()) ) {
+            text = cbm.getText().toString().trim() ;
+        }
+        return text;
     }
 
 }

@@ -132,7 +132,7 @@
         android:layout_marginBottom="15dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:background="@drawable/layout_corner"
+        android:background="@drawable/alpha_layout_corner"
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="gone" >
