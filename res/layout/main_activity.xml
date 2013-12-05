@@ -9,7 +9,8 @@
         android:layout_height="match_parent"
         android:clickable="true" />
 
-    <!-- 我的位置 
+    <!--
+    我的位置 
 
     <LinearLayout
         android:id="@+id/my_location_layout"
@@ -49,7 +50,9 @@
             android:text="@string/send"
             android:textSize="15sp"
             android:visibility="gone" />
-    </LinearLayout> -->
+    </LinearLayout>
+    -->
+
 
     <!-- 路线详情 -->
 
@@ -138,6 +141,7 @@
             android:id="@+id/my_location_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:background="@drawable/mylocation_button_style"
             android:contentDescription="@string/location"
@@ -147,8 +151,8 @@
             android:id="@+id/bus_btn"
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:layout_weight="1"
             android:layout_marginLeft="5dp"
+            android:layout_weight="1"
             android:background="@drawable/bus_button_style"
             android:contentDescription="@string/bus"
             android:textSize="15sp" />
