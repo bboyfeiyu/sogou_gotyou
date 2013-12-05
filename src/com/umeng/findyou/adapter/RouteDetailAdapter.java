@@ -9,7 +9,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.baidu.mapapi.search.MKTransitRoutePlan;
 import com.umeng.findyou.R;
 
 import java.util.ArrayList;
@@ -17,14 +16,14 @@ import java.util.List;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
- * @Title: RoutePlanAdapter.java
+ * @Title: RouteDetailAdapter.java
  * @Package com.umeng.findyou.adapter
  * @Description:
  * @author Honghui He
  * @version V1.0
  */
 
-public class RoutePlanAdapter extends BaseAdapter {
+public class RouteDetailAdapter extends BaseAdapter {
 
     /**
      * 
@@ -33,7 +32,7 @@ public class RoutePlanAdapter extends BaseAdapter {
     /**
      * 
      */
-    private List<MKTransitRoutePlan> mRoutePlans = new ArrayList<MKTransitRoutePlan>();
+    private List<String> mRouteSteps = new ArrayList<String>();
 
     /**
      * 
@@ -43,21 +42,21 @@ public class RoutePlanAdapter extends BaseAdapter {
     /**
      * 
      */
-    public RoutePlanAdapter(Context context, List<MKTransitRoutePlan> data) {
+    public RouteDetailAdapter(Context context, List<String> data) {
         mContext = context;
         if (data != null) {
-            mRoutePlans.addAll(data);
+            mRouteSteps.addAll(data);
         }
     }
 
     @Override
     public int getCount() {
-        return mRoutePlans.size();
+        return mRouteSteps.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mRoutePlans.get(position);
+        return mRouteSteps.get(position);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class RoutePlanAdapter extends BaseAdapter {
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
         }
-        String text = mRoutePlans.get(position).getContent();
+        String text = mRouteSteps.get(position);
         mViewHolder.mTextView.setText(text);
         if (position == 0 || position == (getCount() - 1)) {
             mViewHolder.mImageView.setImageResource(R.drawable.bullet_green);
@@ -105,5 +104,4 @@ public class RoutePlanAdapter extends BaseAdapter {
         protected ImageView mImageView = null;
         protected TextView mTextView = null;
     }
-
 }

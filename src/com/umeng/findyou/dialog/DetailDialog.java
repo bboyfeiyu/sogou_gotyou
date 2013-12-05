@@ -1,4 +1,6 @@
+
 package com.umeng.findyou.dialog;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.widget.ListView;
@@ -14,6 +16,9 @@ import android.widget.ListView;
 
 public class DetailDialog extends Dialog {
 
+    /**
+     * 路线详情
+     */
     private ListView mListView = null;
 
     /**

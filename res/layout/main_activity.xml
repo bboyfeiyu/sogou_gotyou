@@ -12,6 +12,7 @@
     <!-- 我的位置 -->
 
     <LinearLayout
+        android:id="@+id/my_location_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_margin="5dp"
@@ -50,6 +51,50 @@
             android:visibility="gone" />
     </LinearLayout>
 
+    <!-- 路线详情 -->
+
+    <LinearLayout
+        android:id="@+id/route_detail_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/layout_corner"
+        android:gravity="left|center"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/summary_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="@string/summary" />
+
+        <TextView
+            android:id="@+id/distance_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:text="@string/distance" />
+
+        <TextView
+            android:id="@+id/time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/time" />
+
+        <Button
+            android:id="@+id/detail_btn"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/button_style"
+            android:text="@string/detail"
+            android:textSize="15sp" />
+    </LinearLayout>
+
     <!-- 缩放按钮 -->
 
     <RelativeLayout
@@ -84,7 +129,7 @@
         android:layout_marginBottom="15dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:background="@drawable/alpha_layout_corner"
+        android:background="@drawable/layout_corner"
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="gone" >

@@ -2,6 +2,7 @@
 package com.umeng.findyou.utils;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -56,7 +57,7 @@ public class SearchUtil {
      * @Description:
      * @throws
      */
-    public static void routeSearch(SearchConfig config) {
+    public static void routeSearch(Context context, SearchConfig config) {
         if (config == null) {
             return;
         }
@@ -113,13 +114,25 @@ public class SearchUtil {
      * @param keyword
      * @throws
      */
-    public static void poiSearch(SearchConfig config) {
+    public static void poiSearch(Context context, SearchConfig config) {
         SearchEntity searchEntity = config.getSearchEntity();
+        String keyword = searchEntity.getKeyWord();
+        GeoPoint myGeoPoint = searchEntity.getGeoPoint();
+
+        if (myGeoPoint == null) {
+            if (context != null) {
+                Toast.makeText(context, "抱歉,还没有获取到您的位置,请稍侯...", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        } else if (TextUtils.isEmpty(keyword)) {
+            Toast.makeText(context, "请输入关键字...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(context, keyword + " 搜索中...", Toast.LENGTH_SHORT).show();
         // 获取中心点位置
-        GeoPoint geoPoint = new GeoPoint(searchEntity.getGeoPoint().getLatitudeE6(), searchEntity
-                .getGeoPoint().getLongitudeE6());
+        GeoPoint geoPoint = new GeoPoint(myGeoPoint.getLatitudeE6(), myGeoPoint.getLongitudeE6());
         mSearchConfig = config;
-        mMKSearch.poiSearchNearBy(searchEntity.getKeyWord(), geoPoint, 5000);
+        mMKSearch.poiSearchNearBy(keyword, geoPoint, 5000);
     }
 
     /**
@@ -127,7 +140,7 @@ public class SearchUtil {
      * @Description: 公交搜索, 需要通过POI搜索获取到uid
      * @throws
      */
-    public static void busSearch(SearchConfig config) {
+    public static void busSearch(Context context, SearchConfig config) {
         mSearchConfig = config;
         SearchEntity searchEntity = config.getSearchEntity();
         Log.d("", "#### city = " + searchEntity.getCity() + ", bus = " + searchEntity.getKeyWord());

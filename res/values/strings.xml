@@ -19,5 +19,10 @@
     <string name="search">搜索</string>
     <string name="route">路线搜索</string>
     <string name="route_hint">请选择一条路线 </string>
+    <string name="distance">距离:</string>
+    <string name="time">耗时:</string>
+    <string name="summary">方案</string>
+    <string name="taxr_price">打车:</string>
+    <string name="detail">详情</string>
 
 </resources>

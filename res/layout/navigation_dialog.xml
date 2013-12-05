@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nav_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="340dp"
     android:background="@drawable/dialog_bg"
     android:gravity="top|center" >
 
@@ -12,14 +12,14 @@
         android:id="@+id/vechcle_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="horizontal" >
 
         <ImageButton
             android:id="@+id/bus_toggle_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_margin="10dp"
             android:background="@drawable/bus_pressed"
             android:contentDescription="@string/app_name"
@@ -28,8 +28,8 @@
 
         <ImageButton
             android:id="@+id/car_toggle_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_margin="10dp"
             android:background="@drawable/car_normal"
             android:contentDescription="@string/app_name"
@@ -38,8 +38,8 @@
 
         <ImageButton
             android:id="@+id/walk_toggle_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_margin="10dp"
             android:background="@drawable/foot_normal"
             android:contentDescription="@string/app_name"
@@ -54,35 +54,38 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/vechcle_layout"
-        android:layout_marginLeft="45dp"
-        android:layout_marginRight="45dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
         android:drawableLeft="@drawable/bullet_green"
-        android:hint="@string/start_addr" />
+        android:hint="@string/start_addr"
+        android:textSize="14sp" />
 
     <EditText
         android:id="@+id/dest_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/start_edit"
-        android:layout_marginLeft="45dp"
-        android:layout_marginRight="45dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
         android:drawableLeft="@drawable/bullet_red"
-        android:hint="@string/dest_addr" />
+        android:hint="@string/dest_addr"
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/dest_edit"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingBottom="5dp" >
 
         <Button
             android:id="@+id/cancel_btn"
             android:layout_width="80dp"
-            android:layout_height="40dp"
+            android:layout_height="30dp"
             android:background="@drawable/gray_button_style"
             android:text="@string/cancel_btn"
             android:textSize="15sp" />
@@ -90,7 +93,7 @@
         <Button
             android:id="@+id/nav_btn"
             android:layout_width="80dp"
-            android:layout_height="40dp"
+            android:layout_height="30dp"
             android:layout_marginLeft="30dp"
             android:background="@drawable/button_style"
             android:text="@string/search"

@@ -250,7 +250,7 @@ public class NavigationDialog extends Dialog {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(10, 30, 10, 10);
+            params.setMargins(50, 20, 50, 20);
             params.width = LayoutParams.MATCH_PARENT;
             params.height = LayoutParams.WRAP_CONTENT;
             mStartEditText.setLayoutParams(params);
@@ -258,17 +258,18 @@ public class NavigationDialog extends Dialog {
             RelativeLayout.LayoutParams destDarams = new RelativeLayout.LayoutParams(
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            destDarams.setMargins(10, 10, 10, 10);
+            destDarams.setMargins(50, 20, 50, 20);
             destDarams.width = LayoutParams.MATCH_PARENT;
             destDarams.height = LayoutParams.WRAP_CONTENT;
             destDarams.addRule(RelativeLayout.BELOW, mStartEditText.getId());
             mDestEditText.setLayoutParams(destDarams);
+            
         } else if (type == SearchType.POI) {
             // 设置参数
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(10, 30, 10, 10);
+                    100);
+            params.setMargins(50, 20, 50, 20);
             params.width = LayoutParams.MATCH_PARENT;
             params.height = LayoutParams.WRAP_CONTENT;
             mDestEditText.setLayoutParams(params);
