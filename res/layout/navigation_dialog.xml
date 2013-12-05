@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nav_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/layout_corner"
-    android:gravity="center" >
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_bg"
+    android:gravity="top|center" >
 
     <!-- 交通工具选择 -->
 
@@ -12,9 +12,8 @@
         android:id="@+id/vechcle_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#cccccc"
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
 
         <ImageButton
@@ -55,7 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/vechcle_layout"
-        android:layout_margin="5dp"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        android:layout_marginTop="10dp"
         android:drawableLeft="@drawable/bullet_green"
         android:hint="@string/start_addr" />
 
@@ -64,17 +65,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/start_edit"
-        android:layout_margin="5dp"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        android:layout_marginTop="5dp"
         android:drawableLeft="@drawable/bullet_red"
         android:hint="@string/dest_addr" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_below="@id/dest_edit"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="5dp"
-        android:background="#cccccc"
         android:gravity="center"
         android:orientation="horizontal" >
 
