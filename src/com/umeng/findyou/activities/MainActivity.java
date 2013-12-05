@@ -420,7 +420,7 @@ public class MainActivity extends Activity {
      */
     private void checkClipboardText() {
         // 获取剪切板中的地址
-        String addr = ClipboardUtil.getContent(getApplicationContext());
+        String addr = ClipboardUtil.getContent(MainActivity.this);
         if (!TextUtils.isEmpty(addr) && addr.contains(Constants.ADDR_FLAG)) {
             Log.d(TAG, "### 粘贴板内容 : " + addr);
             GeoPoint geoPoint = SearchUtil.stringToGeoPoint(MainActivity.this,
