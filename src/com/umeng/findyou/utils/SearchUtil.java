@@ -72,9 +72,6 @@ public class SearchUtil {
             startNode.name = startEntity.getAddress();
         }
 
-        // end.pt = new GeoPoint(destEntity.getGeoPoint().getLatitudeE6(),
-        // destEntity
-        // .getGeoPoint().getLongitudeE6());
         // 模拟一个点
         // end.pt = new GeoPoint(40057031, 116307852);
         // 目的地
@@ -82,9 +79,7 @@ public class SearchUtil {
         MKPlanNode endNode = new MKPlanNode();
         GeoPoint destGeoPoint = destEntity.getGeoPoint();
         if (destGeoPoint != null) {
-            endNode.pt = destGeoPoint;
-            Log.d("", "### 模拟终点地址 ######");
-            endNode.pt = new GeoPoint(40057031, 116307852);
+            endNode.pt = new GeoPoint(destGeoPoint.getLatitudeE6(), destGeoPoint.getLongitudeE6());
         } else {
             endNode.name = destEntity.getAddress();
         }

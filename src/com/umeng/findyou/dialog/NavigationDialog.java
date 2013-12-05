@@ -295,17 +295,17 @@ public class NavigationDialog extends Dialog {
      */
     private void setImageButton(Vehicle vehicle) {
         if (vehicle == Vehicle.BUS) {
-            mBusButton.setImageResource(R.drawable.bus_pressed);
-            mCarButton.setImageResource(R.drawable.car_normal);
-            mWalkButton.setImageResource(R.drawable.foot_normal);
+            mBusButton.setBackgroundResource(R.drawable.bus_pressed);
+            mCarButton.setBackgroundResource(R.drawable.car_normal);
+            mWalkButton.setBackgroundResource(R.drawable.foot_normal);
         } else if (vehicle == Vehicle.CAR) {
-            mBusButton.setImageResource(R.drawable.bus_normal);
-            mCarButton.setImageResource(R.drawable.car_pressed);
-            mWalkButton.setImageResource(R.drawable.foot_normal);
+            mBusButton.setBackgroundResource(R.drawable.bus_normal);
+            mCarButton.setBackgroundResource(R.drawable.car_pressed);
+            mWalkButton.setBackgroundResource(R.drawable.foot_normal);
         } else if (vehicle == Vehicle.WALK) {
-            mBusButton.setImageResource(R.drawable.bus_normal);
-            mCarButton.setImageResource(R.drawable.car_normal);
-            mWalkButton.setImageResource(R.drawable.foot_pressed);
+            mBusButton.setBackgroundResource(R.drawable.bus_normal);
+            mCarButton.setBackgroundResource(R.drawable.car_normal);
+            mWalkButton.setBackgroundResource(R.drawable.foot_pressed);
         }
     }
 

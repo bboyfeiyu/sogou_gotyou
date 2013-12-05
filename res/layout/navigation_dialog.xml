@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nav_layout"
     android:layout_width="match_parent"
-    android:layout_height="280dp"
+    android:layout_height="320dp"
     android:background="@drawable/dialog_bg"
     android:gravity="top|center" >
 
@@ -12,15 +12,14 @@
         android:id="@+id/vechcle_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:orientation="horizontal" >
 
         <ImageButton
             android:id="@+id/bus_toggle_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="10dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/bus_pressed"
             android:contentDescription="@string/app_name"
             android:textOff=""
@@ -28,9 +27,9 @@
 
         <ImageButton
             android:id="@+id/car_toggle_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="10dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="15dp"
             android:background="@drawable/car_normal"
             android:contentDescription="@string/app_name"
             android:textOff=""
@@ -38,9 +37,9 @@
 
         <ImageButton
             android:id="@+id/walk_toggle_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="10dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+        android:layout_marginLeft="15dp"
             android:background="@drawable/foot_normal"
             android:contentDescription="@string/app_name"
             android:textOff=""
