@@ -82,7 +82,9 @@
             </intent-filter>
         </activity>
         <!-- main页面 -->
-        <activity android:name=".activities.MainActivity" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:configChanges="orientation|keyboardHidden" />
 
         <!-- 设置页面 -->
         <activity android:name=".activities.SettingActivity" />
