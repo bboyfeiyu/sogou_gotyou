@@ -250,7 +250,7 @@ public class NavigationDialog extends Dialog {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(50, 20, 50, 20);
+            params.setMargins(50, 50, 50, 20);
             params.width = LayoutParams.MATCH_PARENT;
             params.height = LayoutParams.WRAP_CONTENT;
             mStartEditText.setLayoutParams(params);
@@ -269,7 +269,7 @@ public class NavigationDialog extends Dialog {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
                     100);
-            params.setMargins(50, 20, 50, 20);
+            params.setMargins(50, 80, 50, 20);
             params.width = LayoutParams.MATCH_PARENT;
             params.height = LayoutParams.WRAP_CONTENT;
             mDestEditText.setLayoutParams(params);
