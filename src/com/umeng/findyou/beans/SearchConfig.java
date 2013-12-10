@@ -1,7 +1,6 @@
 
 package com.umeng.findyou.beans;
 
-import android.util.Log;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -21,6 +20,7 @@ public class SearchConfig {
     private Vehicle mVehicle = Vehicle.BUS;
     private LocationEntity mStartEntity = null;
     private LocationEntity mDestEntity = null;
+    private boolean isChangeAddr = false ;
 
     /**
      * 搜索的配置类
@@ -117,6 +117,22 @@ public class SearchConfig {
      */
     public void setDestEntity(LocationEntity destEntity) {
         this.mDestEntity = destEntity;
+    }
+
+    
+    
+    /**获取 isChangeAddr
+     * @return 返回 isChangeAddr
+     */
+    public boolean isChangeAddr() {
+        return isChangeAddr;
+    }
+
+    /**设置 isChangeAddr
+     * @param 对isChangeAddr进行赋值
+     */
+    public void setChangeAddr(boolean change) {
+        this.isChangeAddr = change;
     }
 
     /**

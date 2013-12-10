@@ -83,6 +83,12 @@ public class SearchUtil {
         } else {
             endNode.name = destEntity.getAddress();
         }
+        // 交换起点和终点
+        if (config.isChangeAddr()) {
+            MKPlanNode tempNode = startNode;
+            startNode = endNode;
+            endNode = tempNode;
+        }
         // 设置驾车路线搜索策略，时间优先、费用最少或距离最短
         mMKSearch.setDrivingPolicy(MKSearch.ECAR_TIME_FIRST);
         if (config.getVehicle() == Vehicle.CAR) {

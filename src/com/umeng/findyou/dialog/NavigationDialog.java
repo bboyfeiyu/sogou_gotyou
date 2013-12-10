@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
+import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.LocationEntity;
 import com.umeng.findyou.beans.SearchConfig;
@@ -62,6 +63,12 @@ public class NavigationDialog extends Dialog {
     private EditText mDestEditText = null;
 
     private LinearLayout mVehicleLayout = null;
+
+    private ImageButton mChangeButton = null;
+
+    private LocationEntity mStartEntity = null;
+    private LocationEntity mDestEntity = null;
+    private boolean isChangeAddr = false;
 
     /**
      * @Title: NavgationDialog
@@ -146,6 +153,16 @@ public class NavigationDialog extends Dialog {
             }
         });
 
+        mChangeButton = (ImageButton) findViewById(R.id.change_btn);
+        mChangeButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                isChangeAddr = !isChangeAddr;
+                initEditText();
+            }
+        });
+
         mStartEditText = (EditText) findViewById(R.id.start_edit);
         mDestEditText = (EditText) findViewById(R.id.dest_edit);
 
@@ -175,6 +192,7 @@ public class NavigationDialog extends Dialog {
         SearchType type = mConfig.getSearchType();
         if (type == SearchType.BUS) { // 公交搜索
             mVehicleLayout.setVisibility(View.GONE);
+            mChangeButton.setVisibility(View.GONE);
             mStartEditText.setHint("城市");
             mDestEditText.setHint("公交路线");
             String city = mConfig.getStartEntity().getCity();
@@ -186,6 +204,7 @@ public class NavigationDialog extends Dialog {
         } else if (type == SearchType.POI) { // 周报搜索
             mVehicleLayout.setVisibility(View.GONE);
             mStartEditText.setVisibility(View.GONE);
+            mChangeButton.setVisibility(View.GONE);
             mDestEditText.setHint("关键字");
             // 修改布局
             layoutChange(type);
@@ -202,25 +221,42 @@ public class NavigationDialog extends Dialog {
      */
     private void initAddress() {
         if (mConfig != null) {
-            LocationEntity startEntity = mConfig.getStartEntity();
-            if (startEntity != null) {
-                String startAddr = startEntity.getAddress();
-                if (startAddr.contains("#")) {
-                    startAddr = startAddr.split("#")[0].trim();
-                }
-
-                mStartEditText.setText(startAddr);
-            }
-
-            LocationEntity destEntity = mConfig.getDestEntity();
-            if (destEntity != null) {
-                String destAddr = destEntity.getAddress();
-                if (destAddr.contains("#")) {
-                    destAddr = destAddr.split("#")[0].trim();
-                }
-                mDestEditText.setText(destAddr);
-            }
+            mStartEntity = mConfig.getStartEntity();
+            mDestEntity = mConfig.getDestEntity();
         }
+        initEditText();
+    }
+
+    /**
+     * @Title: initEditText
+     * @Description: 初始化地址EditText
+     * @throws
+     */
+    private void initEditText() {
+        String startAddr = "";
+        String destAddr = "";
+        if (mStartEntity != null) {
+            startAddr = mStartEntity.getAddress();
+            if (startAddr.contains("#")) {
+                startAddr = startAddr.split("#")[0].trim();
+            }
+
+        }
+        if (mDestEntity != null) {
+            destAddr = mDestEntity.getAddress();
+            if (destAddr.contains("#")) {
+                destAddr = destAddr.split("#")[0].trim();
+            }
+
+        }
+        if (isChangeAddr) {
+            mStartEditText.setText(destAddr);
+            mDestEditText.setText(startAddr);
+        } else {
+            mStartEditText.setText(startAddr);
+            mDestEditText.setText(destAddr);
+        }
+        mConfig.setChangeAddr(isChangeAddr);
     }
 
     /**
@@ -263,7 +299,7 @@ public class NavigationDialog extends Dialog {
             destDarams.height = LayoutParams.WRAP_CONTENT;
             destDarams.addRule(RelativeLayout.BELOW, mStartEditText.getId());
             mDestEditText.setLayoutParams(destDarams);
-            
+
         } else if (type == SearchType.POI) {
             // 设置参数
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(

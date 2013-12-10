@@ -39,7 +39,7 @@
             android:id="@+id/walk_toggle_btn"
             android:layout_width="36dp"
             android:layout_height="36dp"
-        android:layout_marginLeft="15dp"
+            android:layout_marginLeft="15dp"
             android:background="@drawable/foot_normal"
             android:contentDescription="@string/app_name"
             android:textOff=""
@@ -48,35 +48,56 @@
 
     <!--  -->
 
-    <EditText
-        android:id="@+id/start_edit"
+    <RelativeLayout
+        android:id="@+id/edit_btn_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/vechcle_layout"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
-        android:drawableLeft="@drawable/bullet_green"
-        android:hint="@string/start_addr"
-        android:textSize="14sp" />
+        android:layout_marginTop="10dp" >
 
-    <EditText
-        android:id="@+id/dest_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/start_edit"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
-        android:drawableLeft="@drawable/bullet_red"
-        android:hint="@string/dest_addr"
-        android:textSize="14sp" />
+        <ImageButton
+            android:id="@+id/change_btn"
+            android:layout_width="30dp"
+            android:layout_height="75dp"
+            android:layout_marginRight="5dp"
+            android:contentDescription="@string/app_name"
+            android:layout_centerVertical="true"
+            android:background="@drawable/change_addr_button_style" />
+
+        <RelativeLayout
+            android:id="@+id/edit_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@id/change_btn" >
+
+            <EditText
+                android:id="@+id/start_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/bullet_green"
+                android:hint="@string/start_addr"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/dest_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/start_edit"
+                android:layout_marginTop="10dp"
+                android:drawableLeft="@drawable/bullet_red"
+                android:hint="@string/dest_addr"
+                android:textSize="14sp" />
+        </RelativeLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="3dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingBottom="5dp" >

@@ -761,6 +761,8 @@ public class MainActivity extends Activity {
             MKRoute route = result.getPlan(0).getRoute(0);
             routeOverlay.setData(route);
             mMapView.getOverlays().add(routeOverlay);
+            checkClipboardText();
+            mMapView.getOverlays().add(mMyLocationOverlay);
             mMapView.refresh();
             setRouteData("驾车", route);
             Log.d(TAG, "### 搜索结果 : " + result.toString());
@@ -810,6 +812,7 @@ public class MainActivity extends Activity {
             mMapView.getOverlays().clear();
             // 添加路线图层
             mMapView.getOverlays().add(routeOverlay);
+            checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
             // 执行刷新使生效
             mMapView.refresh();
@@ -885,7 +888,7 @@ public class MainActivity extends Activity {
                     TransitOverlay transitOverlay = new TransitOverlay(
                             MainActivity.this, mMapView);
                     MKTransitRoutePlan routePlan = result.getPlan(position);
-                    Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000
+                    Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000.0
                             + " 千米");
                     Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
                     Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
@@ -914,6 +917,7 @@ public class MainActivity extends Activity {
                     mMapView.getOverlays().clear();
                     // 添加路线图层
                     mMapView.getOverlays().add(transitOverlay);
+                    checkClipboardText();
                     mMapView.getOverlays().add(mMyLocationOverlay);
                     // 执行刷新使生效
                     mMapView.refresh();
@@ -930,41 +934,6 @@ public class MainActivity extends Activity {
 
             });
             routeDialog.show();
-
-            // // 路线层
-            // TransitOverlay transitOverlay = new
-            // TransitOverlay(MainActivity.this, mMapView);
-            // MKTransitRoutePlan routePlan = result.getPlan(1);
-            // Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000 + " 千米");
-            // Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
-            // Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
-            // Log.d(TAG, "### 描述: " + routePlan.getContent());
-            //
-            // int lineNum = routePlan.getNumLines();
-            // // 获取路线描述
-            // for (int i = 0; i < routePlan.getNumRoute(); i++) {
-            // MKRoute route = routePlan.getRoute(i);
-            // Log.d(TAG, "### 步行 : " + route.getTip());
-            // if (i < lineNum) {
-            // MKLine line = routePlan.getLine(i);
-            // Log.d(TAG, "### 乘车 : " + line.getTip());
-            // }
-            // }
-            //
-            // // 此处仅展示一个方案作为示例
-            // transitOverlay.setData(routePlan);
-            // // 清除其他图层
-            // mMapView.getOverlays().clear();
-            // // 添加路线图层
-            // mMapView.getOverlays().add(transitOverlay);
-            // mMapView.getOverlays().add(mMyLocationOverlay);
-            // // 执行刷新使生效
-            // mMapView.refresh();
-            // // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
-            // mMapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(),
-            // transitOverlay.getLonSpanE6());
-            // // 移动地图到起点
-            // mMapView.getController().animateTo(result.getStart().pt);
 
         }
 
@@ -1019,6 +988,7 @@ public class MainActivity extends Activity {
             PoiOverlay poiOverlay = new PoiOverlay(MainActivity.this, mMapView);
             poiOverlay.setData(res.getAllPoi());
             mMapView.getOverlays().clear();
+            checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
             mMapView.getOverlays().add(poiOverlay);
             mMapView.refresh();
