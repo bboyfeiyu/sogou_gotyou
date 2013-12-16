@@ -824,9 +824,10 @@ public class MainActivity extends Activity {
             MKRoute route = result.getPlan(0).getRoute(0);
             routeOverlay.setData(route);
             mMapView.getOverlays().add(routeOverlay);
-            checkClipboardText();
+//            checkClipboardText();
             mMapView.getOverlays().clear();
             mMapView.getOverlays().add(mMyLocationOverlay);
+            mMapView.getOverlays().add(mFriendOverlay) ;
             mMapView.refresh();
             setRouteData("驾车", route);
 
@@ -881,8 +882,9 @@ public class MainActivity extends Activity {
             mMapView.getOverlays().clear();
             // 添加路线图层
             mMapView.getOverlays().add(routeOverlay);
-            checkClipboardText();
+//            checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
+            mMapView.getOverlays().add(mFriendOverlay) ;
             // 执行刷新使生效
             mMapView.refresh();
             // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
@@ -992,8 +994,9 @@ public class MainActivity extends Activity {
                     mMapView.getOverlays().clear();
                     // 添加路线图层
                     mMapView.getOverlays().add(transitOverlay);
-                    checkClipboardText();
+//                    checkClipboardText();
                     mMapView.getOverlays().add(mMyLocationOverlay);
+                    mMapView.getOverlays().add(mFriendOverlay) ;
                     // 执行刷新使生效
                     mMapView.refresh();
                     // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
@@ -1061,11 +1064,12 @@ public class MainActivity extends Activity {
 
             mRouteDetailLayout.setVisibility(View.GONE);
             // 将poi结果显示到地图上
-            PoiOverlay poiOverlay = new PoiOverlay(MainActivity.this, mMapView);
+            SogouPoiOverlay poiOverlay = new SogouPoiOverlay(MainActivity.this, mMapView);
             poiOverlay.setData(res.getAllPoi());
             mMapView.getOverlays().clear();
-            checkClipboardText();
+//            checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
+            mMapView.getOverlays().add(mFriendOverlay) ;
             mMapView.getOverlays().add(poiOverlay);
             mMapView.refresh();
             // 当ePoiType为2（公交线路）或4（地铁线路）时， poi坐标为空
@@ -1353,6 +1357,56 @@ public class MainActivity extends Activity {
         public boolean onTap(GeoPoint geoPoint, MapView mapView) {
             showDetailLayout();
             return super.onTap(geoPoint, mapView);
+        }
+
+    }
+
+    /**
+     * @ClassName: SogouPoiOverlay
+     * @Description: 周边搜索图层， 点击图标时导航到该点
+     * @author Honghui He
+     */
+    private class SogouPoiOverlay extends PoiOverlay {
+
+        /**
+         * @Title: SogouPoiOverlay
+         * @Description: SogouPoiOverlay Constructor
+         * @param act
+         * @param mapView
+         */
+        public SogouPoiOverlay(Activity act, MapView mapView) {
+            super(act, mapView);
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onTap
+         * @Description:
+         * @param arg0
+         * @return
+         * @see com.baidu.mapapi.map.PoiOverlay#onTap(int)
+         */
+        @Override
+        protected boolean onTap(int position) {
+            MKPoiInfo poiInfo = getPoi(position);
+            if (poiInfo != null) {
+                gotoThisPlace(poiInfo);
+            }
+            return super.onTap(position);
+        }
+
+        /**
+         * @Title: gotoThisPlace
+         * @Description:
+         * @throws
+         */
+        private void gotoThisPlace(MKPoiInfo poi) {
+            SearchConfig navConfig = new SearchConfig();
+            navConfig.setStartEntity(mMyLocationEntity);
+            LocationEntity poiEntity = new LocationEntity(poi.pt, poi.name);
+            navConfig.setDestEntity(poiEntity);
+            showSearchDialog(navConfig);
         }
 
     }
