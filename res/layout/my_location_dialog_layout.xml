@@ -24,6 +24,7 @@
         android:gravity="center"
         android:hint="@string/hint"
         android:maxWidth="260dp"
+        android:textColor="#ffffff"
         android:textSize="15sp" />
 
     <Button
