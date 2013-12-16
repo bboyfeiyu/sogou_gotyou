@@ -22,8 +22,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -124,6 +124,8 @@ public class MainActivity extends Activity {
     // 定位图层
     private LocationOverlay mMyLocationOverlay = null;
 
+    private FriendOverlay mFriendOverlay = null;
+
     /**
      * 我的位置
      */
@@ -165,7 +167,7 @@ public class MainActivity extends Activity {
      * 最上面的路线详情布局
      */
     private LinearLayout mRouteDetailLayout = null;
-    private TextView mSummarylTextView = null;
+    private ImageView mImageView = null;
     private TextView mDistacneTextView = null;
     private TextView mTimeTextView = null;
     private Button mDetailButton = null;
@@ -182,7 +184,10 @@ public class MainActivity extends Activity {
      */
     private final int TIME_OUT = 15000;
 
-    private final int WHAT_MSG = 123;
+    private final int TIMEOUT_MSG = 123;
+
+    private final int HIDE_DELAY = 10000;
+    private final int HIDE_DETAIL_LAYOUT_MSG = 456;
 
     /**
      * (非 Javadoc)
@@ -304,6 +309,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
+
                 // 设置配置文件， 并且显示dialog
                 SearchConfig config = new SearchConfig();
                 config.setStartEntity(mMyLocationEntity);
@@ -325,8 +331,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        mRouteDetailLayout = (LinearLayout) findViewById(R.id.route_detail_layout);
-        mSummarylTextView = (TextView) findViewById(R.id.summary_tv);
+        mRouteDetailLayout = (LinearLayout) findViewById(R.id.mapview_route_detail_layout);
+        mImageView = (ImageView) mRouteDetailLayout.findViewById(R.id.route_image_view);
         mDistacneTextView = (TextView) findViewById(R.id.distance_tv);
         mTimeTextView = (TextView) findViewById(R.id.time_tv);
         mDetailButton = (Button) findViewById(R.id.detail_btn);
@@ -369,6 +375,28 @@ public class MainActivity extends Activity {
         }
         stringBuilder.append(".");
         return stringBuilder.toString();
+    }
+
+    /**
+     * @Title: hideNavBar
+     * @Description: 隐藏导航栏
+     * @throws
+     */
+    private void hideNavBar() {
+        mButtonLayout.setVisibility(View.GONE);
+        mButtonLayout.startAnimation(AnimationUtils.loadAnimation(
+                MainActivity.this, R.anim.button_layout_exit_anim));
+    }
+
+    /**
+     * @Title: showNavBar
+     * @Description: 显示导航栏
+     * @throws
+     */
+    private void showNavBar() {
+        mButtonLayout.setVisibility(View.VISIBLE);
+        mButtonLayout.startAnimation(AnimationUtils.loadAnimation(
+                MainActivity.this, R.anim.button_layout_enter_anim));
     }
 
     /**
@@ -427,7 +455,7 @@ public class MainActivity extends Activity {
                 mFriendEntity.setGeoPoint(geoPoint);
                 mFriendEntity.setAddress(addr);
                 addFriendToMap();
-                Toast.makeText(MainActivity.this, "好友图标已添加到地图上, 请缩放地图以便查看", Toast.LENGTH_LONG)
+                Toast.makeText(MainActivity.this, "好友已在地图上, 请缩放地图查看", Toast.LENGTH_LONG)
                         .show();
             }
         }
@@ -445,8 +473,8 @@ public class MainActivity extends Activity {
         OverlayItem friendItem = new OverlayItem(mFriendEntity.getGeoPoint(),
                 "", "");
 
-        FriendOverlay friendOverlay = new FriendOverlay(mark, mMapView);
-        friendOverlay.setOnTapListener(new OnOverlayTapListener() {
+        mFriendOverlay = new FriendOverlay(mark, mMapView);
+        mFriendOverlay.setOnTapListener(new OnOverlayTapListener() {
 
             @Override
             public void onTap(int index) {
@@ -459,9 +487,9 @@ public class MainActivity extends Activity {
                 showSearchDialog(navConfig);
             }
         });
-        friendOverlay.addItem(friendItem);
+        mFriendOverlay.addItem(friendItem);
 
-        mMapView.getOverlays().add(friendOverlay);
+        mMapView.getOverlays().add(mFriendOverlay);
         mMapView.refresh();
     }
 
@@ -482,12 +510,18 @@ public class MainActivity extends Activity {
     /**
      * 
      */
-    private Handler mTimeOutHandler = new Handler() {
+    private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
-
-            if (mWaittingDialog != null && mWaittingDialog.isShowing()) {
-                mWaittingDialog.dismiss();
-                Toast.makeText(MainActivity.this, "请求超时, 请检查您的网络...", Toast.LENGTH_SHORT).show();
+            if (msg.what == TIMEOUT_MSG) {
+                if (mWaittingDialog != null && mWaittingDialog.isShowing()) {
+                    mWaittingDialog.dismiss();
+                    Toast.makeText(MainActivity.this, "请求超时, 请检查您的网络...", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            } else if (msg.what == HIDE_DETAIL_LAYOUT_MSG) {
+                mRouteDetailLayout.startAnimation(AnimationUtils.loadAnimation(MainActivity.this,
+                        R.anim.dlg_exit_anim));
+                mRouteDetailLayout.setVisibility(View.GONE);
             }
 
         };
@@ -499,9 +533,22 @@ public class MainActivity extends Activity {
      * @throws
      */
     private void postMessage() {
-        Message msg = Message.obtain(mTimeOutHandler);
-        msg.what = WHAT_MSG;
-        mTimeOutHandler.sendMessageDelayed(msg, TIME_OUT);
+        Message msg = Message.obtain(mHandler);
+        msg.what = TIMEOUT_MSG;
+        mHandler.sendMessageDelayed(msg, TIME_OUT);
+    }
+
+    /**
+     * @Title: hideDetailLayout
+     * @Description: 显示路线详情
+     * @throws
+     */
+    private void showDetailLayout() {
+        mHandler.removeMessages(HIDE_DETAIL_LAYOUT_MSG);
+        mRouteDetailLayout.setVisibility(View.VISIBLE);
+        Message msg = Message.obtain(mHandler);
+        msg.what = HIDE_DETAIL_LAYOUT_MSG;
+        mHandler.sendMessageDelayed(msg, HIDE_DELAY);
     }
 
     /**
@@ -581,7 +628,8 @@ public class MainActivity extends Activity {
      */
     private void showAddrDialog() {
         LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-        View addrView = inflater.inflate(R.layout.my_location_dialog, null);
+        // View addrView = inflater.inflate(R.layout.my_location_dialog, null);
+        View addrView = inflater.inflate(R.layout.my_location_dialog_layout, null);
         // 提示框
         final Dialog alertDialog = new Dialog(MainActivity.this,
                 R.style.dialog_style);
@@ -591,7 +639,7 @@ public class MainActivity extends Activity {
         alertDialog.show();
 
         // 文本编辑框
-        final EditText editText = (EditText) addrView
+        final TextView editText = (TextView) addrView
                 .findViewById(R.id.address_edit);
         editText.setText(mMyLocationEntity.getAddress());
         // 确定按钮
@@ -666,10 +714,7 @@ public class MainActivity extends Activity {
             if (!isFirstTime) {
                 animToMyLocation();
                 mWaittingDialog.dismiss();
-                mButtonLayout.setVisibility(View.VISIBLE);
-                mButtonLayout.startAnimation(AnimationUtils.loadAnimation(
-                        MainActivity.this, R.anim.button_layout_enter_anim));
-
+                showNavBar();
             }
             // 解析地址
             SearchUtil.locationToAddress(mGeoPoint);
@@ -706,6 +751,24 @@ public class MainActivity extends Activity {
             Log.d(TAG, "### " + desc + " : " + tip);
             mRouteData.add(tip);
         }
+    }
+
+    /**
+     * @Title: getDistanceText
+     * @Description:
+     * @param distance
+     * @return
+     * @throws
+     */
+    private String getDistanceText(int distance) {
+        String text = "距离: ";
+        if (distance > 1000) {
+            java.text.DecimalFormat df = new java.text.DecimalFormat("#.##");
+            text += df.format(distance / 1000.0) + " 千米";
+        } else {
+            text += distance + " 米";
+        }
+        return text;
     }
 
     /**
@@ -748,25 +811,31 @@ public class MainActivity extends Activity {
         public void onGetDrivingRouteResult(MKDrivingRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
             if (result == null || error != 0) {
                 Log.d(TAG, "### 搜索失败 ");
                 return;
             }
             Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
             // 显示路线
-            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this,
+            SogouRouteOverlay routeOverlay = new SogouRouteOverlay(MainActivity.this,
                     mMapView);
 
             MKRoute route = result.getPlan(0).getRoute(0);
             routeOverlay.setData(route);
             mMapView.getOverlays().add(routeOverlay);
             checkClipboardText();
+            mMapView.getOverlays().clear();
             mMapView.getOverlays().add(mMyLocationOverlay);
             mMapView.refresh();
             setRouteData("驾车", route);
+
+            mDistacneTextView.setText(getDistanceText(route.getDistance()));
+            mTimeTextView.setText("耗时: " + route.getTime() / 60 + " 分钟");
+            showDetailLayout();
+
             Log.d(TAG, "### 搜索结果 : " + result.toString());
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
         }
 
         /**
@@ -783,7 +852,7 @@ public class MainActivity extends Activity {
         public void onGetWalkingRouteResult(MKWalkingRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
                 // 遍历所有地址
@@ -803,7 +872,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this,
+            SogouRouteOverlay routeOverlay = new SogouRouteOverlay(MainActivity.this,
                     mMapView);
             MKRoute route = result.getPlan(0).getRoute(0);
             // 此处仅展示一个方案作为示例
@@ -823,6 +892,11 @@ public class MainActivity extends Activity {
             mMapView.getController().animateTo(result.getStart().pt);
 
             setRouteData("步行", route);
+
+            mDistacneTextView.setText(getDistanceText(route.getDistance()));
+            mTimeTextView.append("耗时: " + route.getTime() / 60 + " 分钟");
+
+            showDetailLayout();
             mWaittingDialog.dismiss();
         }
 
@@ -840,7 +914,7 @@ public class MainActivity extends Activity {
         public void onGetTransitRouteResult(final MKTransitRouteResult result,
                 int error) {
             mWaittingDialog.dismiss();
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
             // 起点或终点有歧义，需要选择具体的城市列表或地址列表
             if (error == MKEvent.ERROR_ROUTE_ADDR) {
                 Toast.makeText(MainActivity.this, "ERROR_ROUTE_ADDR",
@@ -885,17 +959,18 @@ public class MainActivity extends Activity {
                 public void onItemClick(AdapterView<?> listview, View view,
                         int position, long arg3) {
                     // 路线层
-                    TransitOverlay transitOverlay = new TransitOverlay(
+                    SogouTransitOverlay transitOverlay = new SogouTransitOverlay(
                             MainActivity.this, mMapView);
                     MKTransitRoutePlan routePlan = result.getPlan(position);
-                    Log.d(TAG, "### 距离: " + routePlan.getDistance() / 1000.0
-                            + " 千米");
+                    int distance = routePlan.getDistance();
+                    Log.d(TAG, "### 距离: " + distance / 1000.0 + " 千米");
                     Log.d(TAG, "### 耗时: " + routePlan.getTime() / 60 + " 分钟");
                     Log.d(TAG, "#### 打车大约 " + result.getTaxiPrice() + " 元.");
                     Log.d(TAG, "### 描述: " + routePlan.getContent());
-                    mSummarylTextView.setText("公交方案");
-                    mDistacneTextView.append(routePlan.getDistance() / 1000 + " 公里");
-                    mTimeTextView.append(routePlan.getTime() / 60 + " 分钟");
+                    // mImageView.setText("公交方案");
+                    mImageView.setBackgroundResource(R.drawable.bus_pressed);
+                    mDistacneTextView.setText(getDistanceText(routePlan.getDistance()));
+                    mTimeTextView.append("耗时: " + routePlan.getTime() / 60 + " 分钟");
                     // 获取每一步的文字描述
                     int lineNum = routePlan.getNumLines();
                     mRouteData.clear();
@@ -928,8 +1003,8 @@ public class MainActivity extends Activity {
                     // 移动地图到起点
                     mMapView.getController().animateTo(result.getStart().pt);
                     routeDialog.dismiss();
-                    // mMyLocationLayout.setVisibility(View.GONE);
-                    mRouteDetailLayout.setVisibility(View.VISIBLE);
+
+                    showDetailLayout();
                 }
 
             });
@@ -951,7 +1026,7 @@ public class MainActivity extends Activity {
         @Override
         public void onGetPoiResult(MKPoiResult res, int type, int error) {
             mWaittingDialog.dismiss();
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
             // 错误号可参考MKEvent中的定义
             if (error == MKEvent.ERROR_RESULT_NOT_FOUND) {
                 Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG)
@@ -984,6 +1059,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
+            mRouteDetailLayout.setVisibility(View.GONE);
             // 将poi结果显示到地图上
             PoiOverlay poiOverlay = new PoiOverlay(MainActivity.this, mMapView);
             poiOverlay.setData(res.getAllPoi());
@@ -1016,27 +1092,34 @@ public class MainActivity extends Activity {
          */
         public void onGetBusDetailResult(MKBusLineResult result, int iError) {
             mWaittingDialog.dismiss();
-            mTimeOutHandler.removeMessages(WHAT_MSG);
+            mHandler.removeMessages(TIMEOUT_MSG);
+            if (iError == MKEvent.ERROR_RESULT_NOT_FOUND) {
+                Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_LONG)
+                        .show();
+                return;
+            }
             if (iError != 0 || result == null) {
                 Toast.makeText(MainActivity.this, "抱歉，该路线公交车未找到",
                         Toast.LENGTH_SHORT).show();
                 return;
             }
             // 公交线路图层
-            RouteOverlay routeOverlay = new RouteOverlay(MainActivity.this,
+            SogouRouteOverlay routeOverlay = new SogouRouteOverlay(MainActivity.this,
                     mMapView); // 此处仅展示一个方案作为示例
             MKRoute busRoute = result.getBusRoute();
             String name = result.getBusName();
             Log.d(TAG, "#### 公交车 : " + name);
-            mSummarylTextView.setText(name);
-            mDistacneTextView.setText("");
-            mTimeTextView.setText("");
+            // mImageView.setText(name);
+            mImageView.setBackgroundResource(R.drawable.bus_pressed);
+            mDistacneTextView.setText("始班车: " + result.getStartTime());
+            mTimeTextView.setText("末班车: " + result.getEndTime());
 
             // 设置数据
             routeOverlay.setData(busRoute);
             mMapView.getOverlays().clear();
             mMapView.getOverlays().add(routeOverlay);
             mMapView.getOverlays().add(mMyLocationOverlay);
+            mMapView.getOverlays().add(mFriendOverlay);
             mMapView.refresh();
             mMapView.getController().animateTo(result.getBusRoute().getStart());
 
@@ -1058,6 +1141,7 @@ public class MainActivity extends Activity {
                         + content);
             }
             setRouteData("公交查询", busRoute);
+            showDetailLayout();
             mWaittingDialog.dismiss();
         }
 
@@ -1127,7 +1211,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         mShakeSensor.unregister();
-        mTimeOutHandler.removeMessages(WHAT_MSG);
+        mHandler.removeMessages(TIMEOUT_MSG);
+        mHandler.removeMessages(HIDE_DETAIL_LAYOUT_MSG);
         super.onStop();
     }
 
@@ -1184,4 +1269,91 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /**
+     * 路径图层
+     */
+    private class SogouRouteOverlay extends RouteOverlay {
+
+        public SogouRouteOverlay(Activity act, MapView mapView) {
+            super(act, mapView);
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onTap
+         * @Description:
+         * @param arg0
+         * @return
+         * @see com.baidu.mapapi.map.RouteOverlay#onTap(int)
+         */
+        @Override
+        protected boolean onTap(int position) {
+            showDetailLayout();
+            return super.onTap(position);
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onTap
+         * @Description:
+         * @param arg0
+         * @param arg1
+         * @return
+         * @see com.baidu.mapapi.map.ItemizedOverlay#onTap(com.baidu.platform.comapi.basestruct.GeoPoint,
+         *      com.baidu.mapapi.map.MapView)
+         */
+        @Override
+        public boolean onTap(GeoPoint geoPoint, MapView mapView) {
+            showDetailLayout();
+            return super.onTap(geoPoint, mapView);
+        }
+
+    }
+
+    /**
+     * @ClassName: SogouTransitOverlay
+     * @Description: 公交车路线图层
+     * @author Honghui He
+     */
+    private class SogouTransitOverlay extends TransitOverlay {
+
+        public SogouTransitOverlay(Activity act, MapView mapView) {
+            super(act, mapView);
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onTap
+         * @Description:
+         * @param arg0
+         * @return
+         * @see com.baidu.mapapi.map.RouteOverlay#onTap(int)
+         */
+        @Override
+        protected boolean onTap(int position) {
+            showDetailLayout();
+            return super.onTap(position);
+        }
+
+        /**
+         * (非 Javadoc)
+         * 
+         * @Title: onTap
+         * @Description:
+         * @param arg0
+         * @param arg1
+         * @return
+         * @see com.baidu.mapapi.map.ItemizedOverlay#onTap(com.baidu.platform.comapi.basestruct.GeoPoint,
+         *      com.baidu.mapapi.map.MapView)
+         */
+        @Override
+        public boolean onTap(GeoPoint geoPoint, MapView mapView) {
+            showDetailLayout();
+            return super.onTap(geoPoint, mapView);
+        }
+
+    }
 }

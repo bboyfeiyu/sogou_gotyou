@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:background="@drawable/welcome_android"
+        android:background="@drawable/welcome"
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop" />
 

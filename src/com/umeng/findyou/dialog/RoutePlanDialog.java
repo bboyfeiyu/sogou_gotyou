@@ -75,7 +75,8 @@ public class RoutePlanDialog extends Dialog {
      * @throws
      */
     private void initView() {
-        setContentView(R.layout.routeplan_select_dialog);
+        // setContentView(R.layout.routeplan_select_dialog);
+        setContentView(R.layout.routeplan_select_dialog_layout);
         mListView = (ListView) findViewById(R.id.route_listview);
 
         mSendButton = (Button) findViewById(R.id.send_route_btn);

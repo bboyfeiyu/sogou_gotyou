@@ -8,11 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 
-import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.umeng.findyou.R;
 import com.umeng.findyou.beans.LocationEntity;
 import com.umeng.findyou.beans.SearchConfig;
@@ -41,10 +37,6 @@ public class NavigationDialog extends Dialog {
     /**
      * 
      */
-    private Button mCancelButton = null;
-    /**
-     * 
-     */
     private ImageButton mBusButton = null;
     /**
      * 
@@ -61,8 +53,6 @@ public class NavigationDialog extends Dialog {
     private OnClickListener mClickListener = null;
     private EditText mStartEditText = null;
     private EditText mDestEditText = null;
-
-    private LinearLayout mVehicleLayout = null;
 
     private ImageButton mChangeButton = null;
 
@@ -96,9 +86,10 @@ public class NavigationDialog extends Dialog {
      * @throws
      */
     private void initDialog() {
-        setContentView(R.layout.navigation_dialog);
+        // setContentView(R.layout.navigation_dialog);
+        setContentView(R.layout.search_dialog);
 
-        mBusButton = (ImageButton) findViewById(R.id.bus_toggle_btn);
+        mBusButton = (ImageButton) findViewById(R.id.bus_image_btn);
         mBusButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -108,7 +99,7 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mCarButton = (ImageButton) findViewById(R.id.car_toggle_btn);
+        mCarButton = (ImageButton) findViewById(R.id.car_image_btn);
         mCarButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -118,7 +109,7 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mWalkButton = (ImageButton) findViewById(R.id.walk_toggle_btn);
+        mWalkButton = (ImageButton) findViewById(R.id.walk_image_btn);
         mWalkButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -128,7 +119,7 @@ public class NavigationDialog extends Dialog {
             }
         });
 
-        mSearchButton = (Button) findViewById(R.id.nav_btn);
+        mSearchButton = (Button) findViewById(R.id.search_btn);
         mSearchButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -136,18 +127,6 @@ public class NavigationDialog extends Dialog {
                 if (mClickListener != null) {
                     configChange();
                     mClickListener.onClick(WhitchButton.OK, mConfig);
-                }
-                dismiss();
-            }
-        });
-
-        mCancelButton = (Button) findViewById(R.id.cancel_btn);
-        mCancelButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (mClickListener != null) {
-                    mClickListener.onClick(WhitchButton.CANCEL, mConfig);
                 }
                 dismiss();
             }
@@ -165,8 +144,6 @@ public class NavigationDialog extends Dialog {
 
         mStartEditText = (EditText) findViewById(R.id.start_edit);
         mDestEditText = (EditText) findViewById(R.id.dest_edit);
-
-        mVehicleLayout = (LinearLayout) findViewById(R.id.vechcle_layout);
 
     }
 
@@ -191,25 +168,28 @@ public class NavigationDialog extends Dialog {
     private void initViews() {
         SearchType type = mConfig.getSearchType();
         if (type == SearchType.BUS) { // 公交搜索
-            mVehicleLayout.setVisibility(View.GONE);
             mChangeButton.setVisibility(View.GONE);
+            mCarButton.setVisibility(View.GONE);
+            mWalkButton.setVisibility(View.GONE);
             mStartEditText.setHint("城市");
             mDestEditText.setHint("公交路线");
             String city = mConfig.getStartEntity().getCity();
             if (!TextUtils.isEmpty(city)) {
                 mStartEditText.setText(city);
             }
-
-            layoutChange(type);
         } else if (type == SearchType.POI) { // 周报搜索
-            mVehicleLayout.setVisibility(View.GONE);
+            mBusButton.setBackgroundResource(R.drawable.nearby);
+            mCarButton.setVisibility(View.GONE);
+            mWalkButton.setVisibility(View.GONE);
             mStartEditText.setVisibility(View.GONE);
             mChangeButton.setVisibility(View.GONE);
             mDestEditText.setHint("关键字");
-            // 修改布局
-            layoutChange(type);
 
         } else { // 路线搜索
+            mCarButton.setVisibility(View.VISIBLE);
+            mWalkButton.setVisibility(View.VISIBLE);
+            mStartEditText.setVisibility(View.VISIBLE);
+            mChangeButton.setVisibility(View.VISIBLE);
             initAddress();
         }
     }
@@ -277,42 +257,6 @@ public class NavigationDialog extends Dialog {
     }
 
     /**
-     * @Title: layoutChange
-     * @Description: 动态修改布局
-     * @throws
-     */
-    private void layoutChange(SearchType type) {
-        if (type == SearchType.BUS) {
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(50, 50, 50, 20);
-            params.width = LayoutParams.MATCH_PARENT;
-            params.height = LayoutParams.WRAP_CONTENT;
-            mStartEditText.setLayoutParams(params);
-
-            RelativeLayout.LayoutParams destDarams = new RelativeLayout.LayoutParams(
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT);
-            destDarams.setMargins(50, 20, 50, 20);
-            destDarams.width = LayoutParams.MATCH_PARENT;
-            destDarams.height = LayoutParams.WRAP_CONTENT;
-            destDarams.addRule(RelativeLayout.BELOW, mStartEditText.getId());
-            mDestEditText.setLayoutParams(destDarams);
-
-        } else if (type == SearchType.POI) {
-            // 设置参数
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    android.widget.RelativeLayout.LayoutParams.MATCH_PARENT,
-                    100);
-            params.setMargins(50, 100, 50, 20);
-            params.width = LayoutParams.MATCH_PARENT;
-            params.height = LayoutParams.WRAP_CONTENT;
-            mDestEditText.setLayoutParams(params);
-        }
-    }
-
-    /**
      * @Title: setVehicle
      * @Description:
      * @param vehicle
@@ -332,16 +276,16 @@ public class NavigationDialog extends Dialog {
     private void setImageButton(Vehicle vehicle) {
         if (vehicle == Vehicle.BUS) {
             mBusButton.setBackgroundResource(R.drawable.bus_pressed);
-            mCarButton.setBackgroundResource(R.drawable.car_normal);
-            mWalkButton.setBackgroundResource(R.drawable.foot_normal);
+            mCarButton.setBackgroundResource(R.drawable.taxi);
+            mWalkButton.setBackgroundResource(R.drawable.walk);
         } else if (vehicle == Vehicle.CAR) {
-            mBusButton.setBackgroundResource(R.drawable.bus_normal);
-            mCarButton.setBackgroundResource(R.drawable.car_pressed);
-            mWalkButton.setBackgroundResource(R.drawable.foot_normal);
+            mBusButton.setBackgroundResource(R.drawable.bus);
+            mCarButton.setBackgroundResource(R.drawable.taxi_pressed);
+            mWalkButton.setBackgroundResource(R.drawable.walk);
         } else if (vehicle == Vehicle.WALK) {
-            mBusButton.setBackgroundResource(R.drawable.bus_normal);
-            mCarButton.setBackgroundResource(R.drawable.car_normal);
-            mWalkButton.setBackgroundResource(R.drawable.foot_pressed);
+            mBusButton.setBackgroundResource(R.drawable.bus);
+            mCarButton.setBackgroundResource(R.drawable.taxi);
+            mWalkButton.setBackgroundResource(R.drawable.walk_pressed);
         }
     }
 

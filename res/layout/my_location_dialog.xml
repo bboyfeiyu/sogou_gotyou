@@ -13,8 +13,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
-        android:editable="false"
-        android:hint="@string/hint" />
+        android:hint="@string/hint"
+        android:inputType="none" />
 
     <LinearLayout
         android:layout_width="match_parent"

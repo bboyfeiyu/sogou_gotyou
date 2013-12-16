@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 路线详情 -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/route_detail_layout"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
+    android:layout_marginTop="5dp"
+    android:background="@drawable/layout_corner"
+    android:gravity="left|center"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/route_image_view"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/walk_pressed"
+        android:contentDescription="@string/summary" />
+
+    <TextView
+        android:id="@+id/distance_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:text="@string/distance"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/time_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/time"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/detail_btn"
+        android:layout_width="30dp"
+        android:layout_height="60dp"
+        android:layout_margin="1dp"
+        android:background="@drawable/button_style"
+        android:text="@string/detail"
+        android:textSize="18sp" />
+
+</LinearLayout>

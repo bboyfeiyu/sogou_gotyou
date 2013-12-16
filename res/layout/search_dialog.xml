@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#cc333333"
+    android:minWidth="600dp" >
+
+    <!-- 交通工具选择 -->
+
+    <RelativeLayout
+        android:id="@+id/vechcle_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:gravity="left" >
+
+        <ImageButton
+            android:id="@+id/bus_image_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/bus_pressed"
+            android:contentDescription="@string/app_name" />
+
+        <ImageButton
+            android:id="@+id/car_image_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@id/bus_image_btn"
+            android:background="@drawable/taxi"
+            android:contentDescription="@string/app_name" />
+
+        <ImageButton
+            android:id="@+id/walk_image_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@id/car_image_btn"
+            android:background="@drawable/walk"
+            android:contentDescription="@string/app_name" />
+
+        <Button
+            android:id="@+id/search_btn"
+            android:layout_width="100dp"
+            android:layout_height="36dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/button_style"
+            android:text="@string/search"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <!--  -->
+
+    <RelativeLayout
+        android:id="@+id/edit_btn_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vechcle_layout"
+        android:layout_margin="8dp" >
+
+        <ImageButton
+            android:id="@+id/change_btn"
+            android:layout_width="30dp"
+            android:layout_height="80dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/change_addr_button_style"
+            android:contentDescription="@string/app_name" />
+
+        <RelativeLayout
+            android:id="@+id/edit_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/change_btn" >
+
+            <EditText
+                android:id="@+id/start_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/start_rect"
+                android:hint="@string/start_addr"
+                android:paddingLeft="3dp"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/dest_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/start_edit"
+                android:layout_marginTop="3dp"
+                android:drawableLeft="@drawable/end_rect"
+                android:hint="@string/dest_addr"
+                android:paddingLeft="3dp"
+                android:textSize="14sp" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

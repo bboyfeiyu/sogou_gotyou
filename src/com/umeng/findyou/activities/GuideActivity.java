@@ -69,7 +69,7 @@ public class GuideActivity extends Activity implements OnPageChangeListener {
         mViews.add(inflater.inflate(R.layout.what_new_two, null));
         mViews.add(inflater.inflate(R.layout.what_new_three, null));
         mViews.add(inflater.inflate(R.layout.what_new_four, null));
-
+        mViews.add(inflater.inflate(R.layout.start_layout, null));
         // 初始化Adapter
         mVpAdapter = new ViewPagerAdapter(mViews, this);
 

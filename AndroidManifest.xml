@@ -86,9 +86,6 @@
             android:name=".activities.MainActivity"
             android:configChanges="orientation|keyboardHidden" />
 
-        <!-- 设置页面 -->
-        <activity android:name=".activities.SettingActivity" />
-
         <!-- 第一次使用应用的页面 -->
         <activity android:name=".activities.GuideActivity" />
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="30dp"
+    android:layout_marginTop="30dp"
+    android:background="#cc333333"
+    android:gravity="top|center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/route_content"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_gravity="bottom"
+        android:background="#97e26e"
+        android:gravity="center"
+        android:text="@string/route_hint"
+        android:textColor="#ffffff"
+        android:textSize="18sp" >
+    </TextView>
+
+    <ListView
+        android:id="@+id/route_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        android:layout_weight="1"
+        android:dividerHeight="1dp" >
+    </ListView>
+
+    <Button
+        android:id="@+id/send_route_btn"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/gray_button_style"
+        android:text="@string/send" />
+
+</LinearLayout>
