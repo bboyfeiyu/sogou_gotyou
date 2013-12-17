@@ -378,17 +378,6 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * @Title: hideNavBar
-     * @Description: 隐藏导航栏
-     * @throws
-     */
-    private void hideNavBar() {
-        mButtonLayout.setVisibility(View.GONE);
-        mButtonLayout.startAnimation(AnimationUtils.loadAnimation(
-                MainActivity.this, R.anim.button_layout_exit_anim));
-    }
-
-    /**
      * @Title: showNavBar
      * @Description: 显示导航栏
      * @throws
@@ -824,10 +813,10 @@ public class MainActivity extends Activity {
             MKRoute route = result.getPlan(0).getRoute(0);
             routeOverlay.setData(route);
             mMapView.getOverlays().add(routeOverlay);
-//            checkClipboardText();
+            // checkClipboardText();
             mMapView.getOverlays().clear();
             mMapView.getOverlays().add(mMyLocationOverlay);
-            mMapView.getOverlays().add(mFriendOverlay) ;
+            mMapView.getOverlays().add(mFriendOverlay);
             mMapView.refresh();
             setRouteData("驾车", route);
 
@@ -882,9 +871,9 @@ public class MainActivity extends Activity {
             mMapView.getOverlays().clear();
             // 添加路线图层
             mMapView.getOverlays().add(routeOverlay);
-//            checkClipboardText();
+            // checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
-            mMapView.getOverlays().add(mFriendOverlay) ;
+            mMapView.getOverlays().add(mFriendOverlay);
             // 执行刷新使生效
             mMapView.refresh();
             // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
@@ -896,7 +885,7 @@ public class MainActivity extends Activity {
             setRouteData("步行", route);
 
             mDistacneTextView.setText(getDistanceText(route.getDistance()));
-            mTimeTextView.append("耗时: " + route.getTime() / 60 + " 分钟");
+            mTimeTextView.setText("耗时: " + route.getTime() / 60 + " 分钟");
 
             showDetailLayout();
             mWaittingDialog.dismiss();
@@ -972,7 +961,7 @@ public class MainActivity extends Activity {
                     // mImageView.setText("公交方案");
                     mImageView.setBackgroundResource(R.drawable.bus_pressed);
                     mDistacneTextView.setText(getDistanceText(routePlan.getDistance()));
-                    mTimeTextView.append("耗时: " + routePlan.getTime() / 60 + " 分钟");
+                    mTimeTextView.setText("耗时: " + routePlan.getTime() / 60 + " 分钟");
                     // 获取每一步的文字描述
                     int lineNum = routePlan.getNumLines();
                     mRouteData.clear();
@@ -994,9 +983,9 @@ public class MainActivity extends Activity {
                     mMapView.getOverlays().clear();
                     // 添加路线图层
                     mMapView.getOverlays().add(transitOverlay);
-//                    checkClipboardText();
+                    // checkClipboardText();
                     mMapView.getOverlays().add(mMyLocationOverlay);
-                    mMapView.getOverlays().add(mFriendOverlay) ;
+                    mMapView.getOverlays().add(mFriendOverlay);
                     // 执行刷新使生效
                     mMapView.refresh();
                     // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
@@ -1067,9 +1056,9 @@ public class MainActivity extends Activity {
             SogouPoiOverlay poiOverlay = new SogouPoiOverlay(MainActivity.this, mMapView);
             poiOverlay.setData(res.getAllPoi());
             mMapView.getOverlays().clear();
-//            checkClipboardText();
+            // checkClipboardText();
             mMapView.getOverlays().add(mMyLocationOverlay);
-            mMapView.getOverlays().add(mFriendOverlay) ;
+            mMapView.getOverlays().add(mFriendOverlay);
             mMapView.getOverlays().add(poiOverlay);
             mMapView.refresh();
             // 当ePoiType为2（公交线路）或4（地铁线路）时， poi坐标为空
