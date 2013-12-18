@@ -73,6 +73,7 @@ import com.umeng.findyou.shake.ShakeSensorImpl;
 import com.umeng.findyou.sogouapi.SogouEntryActivity;
 import com.umeng.findyou.utils.ClipboardUtil;
 import com.umeng.findyou.utils.Constants;
+import com.umeng.findyou.utils.DeviceConfig;
 import com.umeng.findyou.utils.SearchUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
@@ -564,6 +565,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(WhitchButton button, SearchConfig config) {
                 if (button == WhitchButton.OK) {
+                    if (!DeviceConfig.isWiFiAvailable(MainActivity.this)) {
+                        Toast.makeText(MainActivity.this, "请检查你的网络...", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     // 路线搜索
                     if (config.getSearchType() == SearchType.ROUTE) {
                         mWaittingDialog.show();
