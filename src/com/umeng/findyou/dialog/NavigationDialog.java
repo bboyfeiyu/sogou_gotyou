@@ -178,7 +178,11 @@ public class NavigationDialog extends Dialog {
             if (!TextUtils.isEmpty(city)) {
                 mStartEditText.setText(city);
             } else {
-                mStartEditText.setText(SharePrefUtil.getCity(getContext()));
+                String cityCache = SharePrefUtil.getCity(getContext());
+                mStartEditText.setText(city);
+                if (!TextUtils.isEmpty(cityCache)) {
+                    mConfig.getStartEntity().setCity(cityCache);
+                }
             }
         } else if (type == SearchType.POI) { // 周报搜索
             mBusButton.setBackgroundResource(R.drawable.nearby);
