@@ -75,6 +75,7 @@ import com.umeng.findyou.utils.ClipboardUtil;
 import com.umeng.findyou.utils.Constants;
 import com.umeng.findyou.utils.DeviceConfig;
 import com.umeng.findyou.utils.SearchUtil;
+import com.umeng.findyou.utils.SharePrefUtil;
 import com.umeng.findyou.views.MyLocationMapView;
 
 import java.util.ArrayList;
@@ -785,6 +786,7 @@ public class MainActivity extends Activity {
             mWaittingDialog.dismiss();
             String myAddr = buildAddress(addr);
             mMyLocationEntity.setCity(addr.addressComponents.city);
+            SharePrefUtil.saveCity(MainActivity.this, addr.addressComponents.city);
             // 构建地址
             mMyLocationEntity.setAddress(myAddr);
             mMyLocationEntity.setGeoPoint(addr.geoPt);

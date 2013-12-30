@@ -14,6 +14,7 @@ import com.umeng.findyou.beans.LocationEntity;
 import com.umeng.findyou.beans.SearchConfig;
 import com.umeng.findyou.beans.SearchConfig.SearchType;
 import com.umeng.findyou.beans.SearchConfig.Vehicle;
+import com.umeng.findyou.utils.SharePrefUtil;
 
 /**
  * @Copyright: Umeng.com, Ltd. Copyright 2011-2015, All rights reserved
@@ -176,6 +177,8 @@ public class NavigationDialog extends Dialog {
             String city = mConfig.getStartEntity().getCity();
             if (!TextUtils.isEmpty(city)) {
                 mStartEditText.setText(city);
+            } else {
+                mStartEditText.setText(SharePrefUtil.getCity(getContext()));
             }
         } else if (type == SearchType.POI) { // 周报搜索
             mBusButton.setBackgroundResource(R.drawable.nearby);

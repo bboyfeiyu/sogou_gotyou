@@ -15,4 +15,5 @@ public final class Constants {
     public static String ADDR_FLAG = "#FindYou";
     public static String SHARE_PREF = "first_pref";
 
+    public static String CITY_KEY = "city";
 }
